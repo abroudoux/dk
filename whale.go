@@ -60,7 +60,7 @@ func main() {
 
 	container := convertStringToContainer(containerSelected)
 
-	// println("Container selected: ", container.Created)
+	debugPrintContainerInfos(container)
 
 	actionSelected, err := chooseAction(container)
 	if err != nil {
@@ -364,14 +364,35 @@ type Container struct {
 
 func convertStringToContainer(str string) Container {
 	fields := strings.Fields(str)
+	id := fields[0]
+	image := fields[1]
+	command := fields[2]
 	created := strings.Join(fields[3:6], " ")
-	return Container{
-		ID:      fields[0],
-		Image:   fields[1],
-		Command: fields[2],
-		Created: created,
-		Status:  fields[4],
-		Ports:   fields[5],
-		Name:    fields[11],
+
+	status := ""
+	ports := ""
+	if len(fields) > 10 {
+		status = strings.Join(fields[6:10], " ")
 	}
+
+	name := fields[len(fields)-1]
+	return Container{
+		ID:      id,
+		Image:   image,
+		Command: command,
+		Created: created,
+		Status:  status,
+		Ports:   ports,
+		Name:    name,
+	}
+}
+
+func debugPrintContainerInfos(container Container) {
+	println("Container id: ", container.ID)
+	println("Container image: ", container.Image)
+	println("Container command: ", container.Command)
+	println("Container created: ", container.Created)
+	println("Container status: ", container.Status)
+	println("Container ports: ", container.Ports)
+	println("Container name: ", container.Name)
 }
