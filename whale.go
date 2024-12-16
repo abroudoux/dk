@@ -47,10 +47,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, container := range containers {
-		println(container)
-	}
-
 	if len(os.Args) > 1 {
 		flagMode(containers)
 		os.Exit(0)
@@ -62,13 +58,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	actionSelected, err := chooseAction(containerSelected)
+	container := convertStringToContainer(containerSelected)
+
+	// println("Container selected: ", container.Created)
+
+	actionSelected, err := chooseAction(container)
 	if err != nil {
 		println("Error choosing action", err)
 		os.Exit(1)
 	}
 
-	err = doAction(actionSelected, containerSelected)
+	err = doAction(actionSelected, container)
 	if err != nil {
 		println("Error doing action", err)
 		os.Exit(1)
@@ -107,7 +107,9 @@ func flagMode(containers []string) {
 			os.Exit(1)
 		}
 
-		actionSelected, err := chooseAction(containerSelected)
+		container := convertStringToContainer(containerSelected)
+
+		actionSelected, err := chooseAction(container)
 		if err != nil {
 			println("Error choosing action")
 			os.Exit(1)
@@ -134,12 +136,15 @@ func getContainers() ([]string, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(string(output), "\n")
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
 	var containers []string
+
 	for i, line := range lines {
-		if i > 0 && line != "" {
-			containers = append(containers, line)
+		if i == 0 {
+			continue
 		}
+
+		containers = append(containers, line)
 	}
 
 	return containers, nil
@@ -199,8 +204,10 @@ func (menu containerChoice) View() string {
         if menu.cursor == i {
             cursor = renderCursor()
             s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, true))
+            // s += fmt.Sprintf("%s %s\n", cursor, container)
         } else {
             s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, false))
+            // s += fmt.Sprintf("%s %s\n", cursor, container)
         }
     }
 
@@ -225,19 +232,20 @@ func renderCursor() string {
 
 func renderContainerSelected(container string, isSelected bool) string {
     if isSelected {
-        return fmt.Sprintf("\033[%sm%s\033[0m", config.Ui.ContainerSelectedColor, container)
+		return fmt.Sprintf("\033[%sm%s\033[0m", config.Ui.ContainerSelectedColor, container)
     }
     return container
 }
+
 
 type actionChoice struct {
 	actions []string
 	cursor int
 	selectedAction string
-	selectedContainer string
+	selectedContainer Container
 }
 
-func initialActionModel(container string) actionChoice {
+func initialActionModel(container Container) actionChoice {
 	actions := []string{
 		"Exit",
 		"Copy container ID",
@@ -282,7 +290,7 @@ func (menu actionChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (menu actionChoice) View() string {
 	s := "\033[H\033[2J"
-	s += fmt.Sprintf("Container: %s\n\n", strings.Split(menu.selectedContainer, " ")[0])
+	s += fmt.Sprintf("Container: %s\n\n", menu.selectedContainer.Name)
 
 	for i, action := range menu.actions {
 		cursor := " "
@@ -305,7 +313,7 @@ func renderActionSelected(action string, isSelected bool) string {
     return action
 }
 
-func chooseAction(container string) (string, error) {
+func chooseAction(container Container) (string, error) {
 	actionsMenu := tea.NewProgram(initialActionModel(container))
 	finalModel, err := actionsMenu.Run()
 	if err != nil {
@@ -316,12 +324,12 @@ func chooseAction(container string) (string, error) {
 	return actionMenu.selectedAction, nil
 }
 
-func doAction(action string, container string) error {
+func doAction(action string, container Container) error {
 	switch action {
 	case "Exit":
 		os.Exit(0)
 	case "Copy container ID":
-		containerID := strings.Split(container, " ")[0]
+		containerID := container.ID
 		err := copyContainerId(containerID)
 		if err != nil {
 			println(err)
@@ -342,4 +350,28 @@ func copyContainerId(container string) error {
 
 	println("Container ID copied to clipboard")
 	return nil
+}
+
+type Container struct {
+	ID string
+	Image string
+	Command string
+	Created string
+	Status string
+	Ports string
+	Name string
+}
+
+func convertStringToContainer(str string) Container {
+	fields := strings.Fields(str)
+	created := strings.Join(fields[3:6], " ")
+	return Container{
+		ID:      fields[0],
+		Image:   fields[1],
+		Command: fields[2],
+		Created: created,
+		Status:  fields[4],
+		Ports:   fields[5],
+		Name:    fields[11],
+	}
 }
