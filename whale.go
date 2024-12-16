@@ -47,6 +47,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	for _, container := range containers {
+		println(container)
+	}
+
 	if len(os.Args) > 1 {
 		flagMode(containers)
 		os.Exit(0)
@@ -58,7 +62,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	println("Container selected: ", containerSelected)
+	actionSelected, err := chooseAction(containerSelected)
+	if err != nil {
+		println("Error choosing action", err)
+		os.Exit(1)
+	}
+
+	err = doAction(actionSelected, containerSelected)
+	if err != nil {
+		println("Error doing action", err)
+		os.Exit(1)
+	}
 }
 
 func loadConfig() error {
@@ -93,7 +107,13 @@ func flagMode(containers []string) {
 			os.Exit(1)
 		}
 
-		println("Container selected: ", containerSelected)
+		actionSelected, err := chooseAction(containerSelected)
+		if err != nil {
+			println("Error choosing action")
+			os.Exit(1)
+		}
+
+		println("Action selected: ", actionSelected)
 	case "--help", "-h":
 		printHelpManual()
 	case "--version", "-v":
@@ -103,6 +123,7 @@ func flagMode(containers []string) {
 
 func printHelpManual() {
 	fmt.Println("Usage: whale [options]")
+	fmt.Printf("  %-20s %s\n", "whale [--run | -r]", "Run the program")
 	fmt.Printf("  %-20s %s\n", "whale [--help | -h]", "Show this help message")
 }
 
@@ -115,14 +136,15 @@ func getContainers() ([]string, error) {
 
 	lines := strings.Split(string(output), "\n")
 	var containers []string
-	for _, line := range lines {
-		if line != "" {
+	for i, line := range lines {
+		if i > 0 && line != "" {
 			containers = append(containers, line)
 		}
 	}
 
 	return containers, nil
 }
+
 
 type containerChoice struct {
 	containers []string
@@ -206,4 +228,118 @@ func renderContainerSelected(container string, isSelected bool) string {
         return fmt.Sprintf("\033[%sm%s\033[0m", config.Ui.ContainerSelectedColor, container)
     }
     return container
+}
+
+type actionChoice struct {
+	actions []string
+	cursor int
+	selectedAction string
+	selectedContainer string
+}
+
+func initialActionModel(container string) actionChoice {
+	actions := []string{
+		"Exit",
+		"Copy container ID",
+	}
+
+	return actionChoice{
+		actions: actions,
+		cursor: len(actions) - 1,
+		selectedAction: "",
+		selectedContainer: container,
+	}
+}
+
+func (menu actionChoice) Init() tea.Cmd {
+	return nil
+}
+
+func (menu actionChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "esc", "ctrl+c":
+			return menu, tea.Quit
+		case "up":
+			menu.cursor--
+			if menu.cursor < 0 {
+				menu.cursor = len(menu.actions) - 1
+			}
+		case "down":
+			menu.cursor++
+			if menu.cursor >= len(menu.actions) {
+				menu.cursor = 0
+			}
+		case "enter":
+			menu.selectedAction = menu.actions[menu.cursor]
+			return menu, tea.Quit
+		}
+	}
+
+	return menu, nil
+}
+
+func (menu actionChoice) View() string {
+	s := "\033[H\033[2J"
+	s += fmt.Sprintf("Container: %s\n\n", strings.Split(menu.selectedContainer, " ")[0])
+
+	for i, action := range menu.actions {
+		cursor := " "
+
+		if menu.cursor == i {
+			cursor = renderCursor()
+			s += fmt.Sprintf("%s %s\n", cursor, renderActionSelected(action, true))
+		} else {
+			s += fmt.Sprintf("%s %s\n", cursor, renderActionSelected(action, false))
+		}
+	}
+
+	return s
+}
+
+func renderActionSelected(action string, isSelected bool) string {
+    if isSelected {
+        return fmt.Sprintf("\033[%sm%s\033[0m", config.Ui.ActionSelectedColor, action)
+    }
+    return action
+}
+
+func chooseAction(container string) (string, error) {
+	actionsMenu := tea.NewProgram(initialActionModel(container))
+	finalModel, err := actionsMenu.Run()
+	if err != nil {
+		return "", err
+	}
+
+	actionMenu := finalModel.(actionChoice)
+	return actionMenu.selectedAction, nil
+}
+
+func doAction(action string, container string) error {
+	switch action {
+	case "Exit":
+		os.Exit(0)
+	case "Copy container ID":
+		containerID := strings.Split(container, " ")[0]
+		err := copyContainerId(containerID)
+		if err != nil {
+			println(err)
+			os.Exit(1)
+		}
+	}
+
+	return nil
+}
+
+func copyContainerId(container string) error {
+	cmd := exec.Command("pbcopy")
+	cmd.Stdin = strings.NewReader(container)
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error copying container ID: %v", err)
+	}
+
+	println("Container ID copied to clipboard")
+	return nil
 }
