@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,7 +11,26 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+//go:embed config.json
+var configFile string
+var config Config
+
+type Config struct {
+	Ui struct {
+		CursorColor string `json:"cursorColor"`
+		BranchColor string `json:"branchColor"`
+		ContainerSelectedColor string `json:"containerSelectedColor"`
+		ActionSelectedColor string `json:"actionSelectedColor"`
+	} `json:"Ui"`
+}
+
 func main() {
+	err := loadConfig()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	if !isDockerInstalled() {
 		println("Docker is not installed")
 		os.Exit(1)
@@ -38,6 +59,15 @@ func main() {
 	}
 
 	println("Container selected: ", containerSelected)
+}
+
+func loadConfig() error {
+	err := json.Unmarshal([]byte(configFile), &config)
+	if err != nil {
+		return fmt.Errorf("error parsing config file: %v", err)
+	}
+
+	return nil
 }
 
 func isDockerInstalled() bool {
@@ -145,11 +175,10 @@ func (menu containerChoice) View() string {
         cursor := " "
 
         if menu.cursor == i {
-            // cursor = renderCursor()
-            cursor = ">"
-            s += fmt.Sprintf("%s %s\n", cursor, container)
+            cursor = renderCursor()
+            s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, true))
         } else {
-            s += fmt.Sprintf("%s %s\n", cursor, container)
+            s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, false))
         }
     }
 
@@ -165,4 +194,16 @@ func chooseContainer(containers []string) (string, error) {
 
 	containerMenu := finalModel.(containerChoice)
 	return containerMenu.selectedContainer, nil
+}
+
+func renderCursor() string {
+	render := fmt.Sprintf("\033[%sm>\033[0m", config.Ui.CursorColor)
+	return render
+}
+
+func renderContainerSelected(container string, isSelected bool) string {
+    if isSelected {
+        return fmt.Sprintf("\033[%sm%s\033[0m", config.Ui.ContainerSelectedColor, container)
+    }
+    return container
 }
