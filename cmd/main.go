@@ -64,7 +64,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err = container.DoContainerAction(containerSelected, action)
+		err = container.DoContainerAction(ctx, cli, containerSelected, action)
 		if err != nil {
 			logs.Error("Error during action execution: ", err)
 			os.Exit(1)

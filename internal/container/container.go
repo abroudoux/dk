@@ -22,22 +22,39 @@ func GetContainers(ctx context.Context, cli *client.Client, showAllContainers bo
 	return containers, err
 }
 
-func DoContainerAction(containerSelected Container, action forms.Action) error {
+func DoContainerAction(ctx context.Context, cli *client.Client, container Container, action forms.Action) error {
 	switch action {
-	case forms.ActionCopyContainerID:
-		return copyContainerId(containerSelected)
 	case forms.ActionExit:
+		return nil
+	case forms.ActionCopyContainerID:
+		return copyContainerId(container)
+	case forms.ActionDelete:
+		return deleteContainer(ctx, cli, container)
+	case forms.ActionsStatus:
 		return nil
 	default:
 		return fmt.Errorf("unknown action: %v", action)
 	}
 }
 
-func copyContainerId(containerSelected Container) error {
-	err := clipboard.WriteAll(containerSelected.ID)
+func copyContainerId(container Container) error {
+	err := clipboard.WriteAll(container.ID)
 	if err != nil {
 		return err
 	}
-	logs.InfoMsg(fmt.Sprintf("Container ID copied to clipboard: %s", containerSelected.ID))
+	logs.InfoMsg(fmt.Sprintf("Container ID copied to clipboard: %s", container.ID))
 	return nil
+}
+
+func deleteContainer(ctx context.Context, cli *client.Client, container Container) error {
+	removeOptions := containertypes.RemoveOptions{
+        Force: true,
+        RemoveVolumes: true,
+    }
+	if err := cli.ContainerRemove(ctx, container.ID, removeOptions); err != nil {
+        return fmt.Errorf("error removing container %s: %v", container.ID, err)
+    }
+
+	logs.InfoMsg(fmt.Sprintf("Container %s removed successfully", container.ID))
+    return nil
 }
