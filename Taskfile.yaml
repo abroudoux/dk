@@ -3,9 +3,9 @@ version: "3"
 tasks:
   build:
     cmds:
-      - go build -o ./bin/whale ./cmd/main.go
+      - go build -o ./bin/dk ./cmd/main.go
 
   dev:
     cmds:
       - task build
-      - ./bin/whale
+      - ./bin/dk

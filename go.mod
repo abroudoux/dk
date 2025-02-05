@@ -1,4 +1,4 @@
-module github.com/abroudoux/whale
+module github.com/abroudoux/dk
 
 go 1.21.5
 

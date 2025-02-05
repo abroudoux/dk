@@ -1,4 +1,4 @@
-# whale
+# dk
 
 🐳 A minimalist TUI to interract faster with Docker
 
