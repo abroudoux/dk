@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - go build -o ./bin/whale ./cmd/main.go
+
+  dev:
+    cmds:
+      - task build
+      - ./bin/whale
