@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/abroudoux/dk/internal/container"
 	"github.com/abroudoux/dk/internal/forms"
@@ -22,10 +23,15 @@ func main() {
 		panic(err)
 	}
 
+	for _, c := range containers {
+		fmt.Printf("Name: %s \n", strings.Join(c.Names, ""))
+	}
+
 	containerSelected, err := forms.ChooseContainer(containers)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("%s", containerSelected.Names[0])
+	containerNameSelected := strings.Join(containerSelected.Names, "")
+	fmt.Printf("%s", containerNameSelected)
 }
