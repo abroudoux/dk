@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/abroudoux/dk/internal/forms"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/atotto/clipboard"
 	"github.com/docker/docker/api/types"
@@ -21,13 +22,15 @@ func GetContainers(ctx context.Context, cli *client.Client, showAllContainers bo
 	return containers, err
 }
 
-func DoContainerAction(containerSelected Container, action string) error {
+func DoContainerAction(containerSelected Container, action forms.Action) error {
 	switch action {
-	case "Copy Container ID":
-		copyContainerId(containerSelected)
+	case forms.ActionCopyContainerID:
+		return copyContainerId(containerSelected)
+	case forms.ActionExit:
+		return nil
+	default:
+		return fmt.Errorf("unknown action: %v", action)
 	}
-
-	return nil
 }
 
 func copyContainerId(containerSelected Container) error {

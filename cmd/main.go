@@ -53,6 +53,7 @@ func main() {
 		containerSelected, err := forms.ChooseContainer(containers)
 		if err != nil {
 			logs.Error("Error during container selection: ", err)
+			os.Exit(1)
 		}
 
 		println(containerSelected.ID)
@@ -60,11 +61,13 @@ func main() {
 		action, err := forms.ChooseAction(containerSelected)
 		if err != nil {
 			logs.Error("Error during action selection: ", err)
+			os.Exit(1)
 		}
 
 		err = container.DoContainerAction(containerSelected, action)
 		if err != nil {
 			logs.Error("Error during action execution: ", err)
+			os.Exit(1)
 		}
 
 		os.Exit(0)

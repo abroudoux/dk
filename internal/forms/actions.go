@@ -7,23 +7,34 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type Action int
+
+const (
+	ActionExit Action = iota
+	ActionCopyContainerID
+)
+
+func (a Action) String() string {
+	return [...]string{"Exit", "Copy Container ID"}[a]
+}
+
 type actionChoice struct {
-	actions []string
+	actions []Action
 	cursor int
-	selectedAction string
+	selectedAction Action
 	selectedContainer Container
 }
 
 func initialActionModel(container Container) actionChoice {
-	actions := []string{
-		"Exit",
-		"Copy Container ID",
+	actions := []Action{
+		ActionExit,
+		ActionCopyContainerID,
 	}
 
 	return actionChoice{
 		actions: actions,
 		cursor: len(actions) - 1,
-		selectedAction: "",
+		selectedAction: ActionExit,
 		selectedContainer: container,
 	}
 }
@@ -64,17 +75,17 @@ func (menu actionChoice) View() string {
 	for i, action := range menu.actions {
 		cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderActionSelected(action, menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderActionSelected(action.String(), menu.cursor == i))
 	}
 
 	return s
 }
 
-func ChooseAction(container Container) (string, error) {
+func ChooseAction(container Container) (Action, error) {
 	p := tea.NewProgram(initialActionModel(container))
 	m, err := p.Run()
 	if err != nil {
-		return "", err
+		return ActionExit, err
 	}
 
 	action := m.(actionChoice).selectedAction
