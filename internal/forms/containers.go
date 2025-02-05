@@ -3,6 +3,7 @@ package forms
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/abroudoux/dk/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
@@ -63,7 +64,9 @@ func (menu containerChoice) View() string {
 		imageName := container.Image
 		publicPort := container.Ports[0].PublicPort
 		privatePort := container.Ports[0].PrivatePort
-		containerLine := fmt.Sprintf("%s => %s (%d:%d)", name, imageName, publicPort, privatePort)
+		state := container.State
+		created := time.Unix(container.Created, 0).Format("2006-01-02 15:04:05")
+		containerLine := fmt.Sprintf("%s => %s (%d:%d) [%s - %s]", name, imageName, publicPort, privatePort, state, created)
 
         cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
