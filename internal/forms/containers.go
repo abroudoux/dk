@@ -2,6 +2,7 @@ package forms
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/abroudoux/dk/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
@@ -58,9 +59,12 @@ func (menu containerChoice) View() string {
     s += "Choose a container:\n\n"
 
 	for i, container := range menu.containers {
+		name, _ := strings.CutPrefix(container.Names[0], "/")
+		containerLine := fmt.Sprintf("%s based on %s", name, container.Image)
+
         cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderContainerSelected(container.Names[0], menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderContainerSelected(containerLine, menu.cursor == i))
     }
 
     return s

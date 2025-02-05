@@ -5,11 +5,6 @@ tasks:
     cmds:
       - go build -o ./bin/dk ./cmd/main.go
 
-  dev:
-    cmds:
-      - task build
-      - ./bin/dk
-
   run:
     cmds:
       - task build
