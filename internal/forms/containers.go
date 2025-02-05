@@ -79,6 +79,6 @@ func ChooseContainer(containers []Container) (Container, error) {
 	if err != nil {
 		return Container{}, err
 	}
-	menu := model.(containerChoice)
-	return menu.selectedContainer, nil
+	selectedContainer := model.(containerChoice).selectedContainer
+	return selectedContainer, nil
 }

@@ -32,6 +32,13 @@ func main() {
 		panic(err)
 	}
 
-	containerNameSelected := strings.Join(containerSelected.Names, "")
-	fmt.Printf("%s", containerNameSelected)
+	// containerNameSelected := strings.Join(containerSelected.Names, "")
+	// fmt.Printf("%s", containerNameSelected)
+
+	action, err := forms.ChooseAction(containerSelected)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s", action)
 }
