@@ -1,26 +1,40 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/abroudoux/dk/internal/container"
+	"github.com/abroudoux/dk/internal/docker"
 	"github.com/abroudoux/dk/internal/forms"
 	"github.com/abroudoux/dk/internal/logs"
-	"github.com/docker/docker/client"
 )
 
 func main() {
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if len(os.Args) > 1 {
+		option := os.Args[1]
+
+		switch option {
+		case "--help", "-h":
+			PrintHelpManual()
+			os.Exit(0)
+		case "--version", "-v":
+			fmt.Println("dk version 0.0.1")
+			os.Exit(0)
+		default:
+			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))
+			PrintHelpManual()
+			os.Exit(0)
+		}
+	}
+
+	ctx, cli, err := docker.GetCtxCli()
 	if err != nil {
-		logs.Fatal("Error during cli init: ", err)
+		logs.Error("Error during docker client initialization: ", err)
 		os.Exit(1)
 	}
-	defer cli.Close()
 
-	containers, err := container.GetContainers(cli, ctx)
+	containers, err := container.GetContainers(ctx, cli)
 	if err != nil {
 		logs.Error("Error during containers recuperation: ", err)
 		os.Exit(1)
@@ -37,4 +51,11 @@ func main() {
 	}
 
 	fmt.Printf("%s", action)
+}
+
+
+func PrintHelpManual() {
+	fmt.Println("Usage: dk [options]")
+	fmt.Printf("  %-20s %s\n", "dk", "Run the program")
+	fmt.Printf("  %-20s %s\n", "dk [--help | -h]", "Show this help message")
 }

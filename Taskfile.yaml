@@ -8,4 +8,4 @@ tasks:
   run:
     cmds:
       - task build
-      - ./bin/dk
+      - ./bin/dk {{ .CLI_ARGS }}
