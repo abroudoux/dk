@@ -13,14 +13,14 @@ import (
 )
 
 func main() {
-	var allContainers bool
+	var showAllContainers bool = false
 
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
 		switch option {
 		case "--all", "-a":
-			allContainers = true
+			showAllContainers = true
 		case "--help", "-h":
 			PrintHelpManual()
 			os.Exit(0)
@@ -40,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	containers, err := container.GetContainers(ctx, cli, allContainers)
+	containers, err := container.GetContainers(ctx, cli, showAllContainers)
 	if err != nil {
 		logs.Error("Error during containers recuperation: ", err)
 		os.Exit(1)
@@ -62,7 +62,11 @@ func main() {
 			logs.Error("Error during action selection: ", err)
 		}
 
-		fmt.Printf("%s", action)
+		err = container.DoContainerAction(containerSelected, action)
+		if err != nil {
+			logs.Error("Error during action execution: ", err)
+		}
+
 		os.Exit(0)
     }()
 

@@ -17,7 +17,7 @@ type actionChoice struct {
 func initialActionModel(container Container) actionChoice {
 	actions := []string{
 		"Exit",
-		"Copy container ID",
+		"Copy Container ID",
 	}
 
 	return actionChoice{
