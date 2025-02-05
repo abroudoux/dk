@@ -60,7 +60,10 @@ func (menu containerChoice) View() string {
 
 	for i, container := range menu.containers {
 		name, _ := strings.CutPrefix(container.Names[0], "/")
-		containerLine := fmt.Sprintf("%s based on %s", name, container.Image)
+		imageName := container.Image
+		publicPort := container.Ports[0].PublicPort
+		privatePort := container.Ports[0].PrivatePort
+		containerLine := fmt.Sprintf("%s => %s (%d:%d)", name, imageName, publicPort, privatePort)
 
         cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
