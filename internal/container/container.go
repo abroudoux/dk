@@ -8,8 +8,8 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func GetContainers(ctx context.Context, cli *client.Client) ([]types.Container, error) {
-	containers, err := cli.ContainerList(ctx, containertypes.ListOptions{})
+func GetContainers(ctx context.Context, cli *client.Client, allContainers bool) ([]types.Container, error) {
+	containers, err := cli.ContainerList(ctx, containertypes.ListOptions{All: allContainers})
 	if err != nil {
 		return nil, err
 	}

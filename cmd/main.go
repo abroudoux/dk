@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/abroudoux/dk/internal/container"
 	"github.com/abroudoux/dk/internal/docker"
@@ -11,10 +13,14 @@ import (
 )
 
 func main() {
+	var allContainers bool
+
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
 		switch option {
+		case "--all", "-a":
+			allContainers = true
 		case "--help", "-h":
 			PrintHelpManual()
 			os.Exit(0)
@@ -34,23 +40,35 @@ func main() {
 		os.Exit(1)
 	}
 
-	containers, err := container.GetContainers(ctx, cli)
+	containers, err := container.GetContainers(ctx, cli, allContainers)
 	if err != nil {
 		logs.Error("Error during containers recuperation: ", err)
 		os.Exit(1)
 	}
 
-	containerSelected, err := forms.ChooseContainer(containers)
-	if err != nil {
-		logs.Error("Error during container selection: ", err)
-	}
+	sigChan := make(chan os.Signal, 1)
+    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	action, err := forms.ChooseAction(containerSelected)
-	if err != nil {
-		logs.Error("Error during action selection: ", err)
-	}
+	go func() {
+		containerSelected, err := forms.ChooseContainer(containers)
+		if err != nil {
+			logs.Error("Error during container selection: ", err)
+		}
 
-	fmt.Printf("%s", action)
+		println(containerSelected.ID)
+
+		action, err := forms.ChooseAction(containerSelected)
+		if err != nil {
+			logs.Error("Error during action selection: ", err)
+		}
+
+		fmt.Printf("%s", action)
+		os.Exit(0)
+    }()
+
+	<-sigChan
+    fmt.Println("\nProgram interrupted. Exiting...")
+    os.Exit(0)
 }
 
 
