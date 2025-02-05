@@ -1,0 +1,84 @@
+package forms
+
+import (
+	"fmt"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/docker/docker/api/types"
+)
+
+type Container = types.Container
+
+type containerChoice struct {
+	containers []Container
+	cursor int
+	selectedContainer Container
+}
+
+func initialContainerModel(containers []Container) containerChoice {
+	return containerChoice{
+		containers: containers,
+		cursor: len(containers) - 1,
+		selectedContainer: Container{},
+	}
+}
+
+func (menu containerChoice) Init() tea.Cmd {
+	return nil
+}
+
+func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "esc", "ctrl+c":
+			return menu, tea.Quit
+		case "up":
+			menu.cursor--
+			if menu.cursor < 0 {
+				menu.cursor = len(menu.containers) - 1
+			}
+		case "down":
+			menu.cursor++
+			if menu.cursor >= len(menu.containers) {
+				menu.cursor = 0
+			}
+		case "enter":
+			menu.selectedContainer = menu.containers[menu.cursor]
+			return menu, tea.Quit
+		}
+	}
+
+	return menu, nil
+}
+
+func (menu containerChoice) View() string {
+	s := "\033[H\033[2J"
+    s += "Choose a container:\n\n"
+
+	for i, container := range menu.containers {
+        cursor := " "
+
+        if menu.cursor == i {
+            // cursor = renderCursor()
+			cursor = ">"
+            // s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, true))
+			s += fmt.Sprintf("%s %s\n", cursor, container.Names[0])
+        } else {
+            // s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, false))
+			s += fmt.Sprintf("%s %s\n", cursor, container.Names[0])
+        }
+    }
+
+    return s
+}
+
+func ChooseContainer(containers []Container) (Container, error) {
+	containersMenu := tea.NewProgram(initialContainerModel(containers))
+	model, err := containersMenu.Run()
+	if err != nil {
+		return Container{}, err
+	}
+	menu := model.(containerChoice)
+	return menu.selectedContainer, nil
+}

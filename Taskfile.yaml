@@ -9,3 +9,8 @@ tasks:
     cmds:
       - task build
       - ./bin/dk
+
+  run:
+    cmds:
+      - task build
+      - ./bin/dk
