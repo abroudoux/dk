@@ -3,6 +3,7 @@ package forms
 import (
 	"fmt"
 
+	"github.com/abroudoux/dk/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -62,10 +63,8 @@ func (menu actionChoice) View() string {
 
 	for i, action := range menu.actions {
 		cursor := " "
-		if menu.cursor == i {
-			cursor = ">"
-		}
-		s += fmt.Sprintf("%s %s\n", cursor, action)
+		cursor = ui.RenderCursor(menu.cursor == i)
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderActionSelected(action, menu.cursor == i))
 	}
 
 	return s

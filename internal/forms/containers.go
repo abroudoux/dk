@@ -3,6 +3,7 @@ package forms
 import (
 	"fmt"
 
+	"github.com/abroudoux/dk/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 )
@@ -58,16 +59,8 @@ func (menu containerChoice) View() string {
 
 	for i, container := range menu.containers {
         cursor := " "
-
-        if menu.cursor == i {
-            // cursor = renderCursor()
-			cursor = ">"
-            // s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, true))
-			s += fmt.Sprintf("%s %s\n", cursor, container.Names[0])
-        } else {
-            // s += fmt.Sprintf("%s %s\n", cursor, renderContainerSelected(container, false))
-			s += fmt.Sprintf("%s %s\n", cursor, container.Names[0])
-        }
+		cursor = ui.RenderCursor(menu.cursor == i)
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderContainerSelected(container.Names[0], menu.cursor == i))
     }
 
     return s
