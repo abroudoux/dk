@@ -60,8 +60,12 @@ func (menu containerChoice) View() string {
     s += "Choose a container:\n\n"
 
 	for i, container := range menu.containers {
+		var containerLine string
+
 		name, _ := strings.CutPrefix(container.Names[0], "/")
 		imageName := container.Image
+		state := container.State
+		created := time.Unix(container.Created, 0).Format("2006-01-02 15:04:05")
 
 		var publicPort uint16
 		var privatePort uint16
@@ -69,14 +73,10 @@ func (menu containerChoice) View() string {
 		if len(container.Ports) > 0 {
 			publicPort = container.Ports[0].PublicPort
 			privatePort = container.Ports[0].PrivatePort
+			containerLine = fmt.Sprintf("%s => %s (%d:%d) [%s - %s]", name, imageName, publicPort, privatePort, state, created)
 		} else {
-			publicPort = 0
-			privatePort = 0
+			containerLine = fmt.Sprintf("%s => %s [%s - %s]", name, imageName, state, created)
 		}
-
-		state := container.State
-		created := time.Unix(container.Created, 0).Format("2006-01-02 15:04:05")
-		containerLine := fmt.Sprintf("%s => %s (%d:%d) [%s - %s]", name, imageName, publicPort, privatePort, state, created)
 
         cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)

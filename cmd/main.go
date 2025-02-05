@@ -46,6 +46,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if len(containers) == 0 {
+		logs.WarnMsg("No containers found")
+		os.Exit(0)
+	}
+
 	sigChan := make(chan os.Signal, 1)
     signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
