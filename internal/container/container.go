@@ -31,7 +31,7 @@ func DoContainerAction(ctx context.Context, cli *client.Client, container Contai
 	case forms.ActionDelete:
 		return deleteContainer(ctx, cli, container)
 	case forms.ActionsStatus:
-		return nil
+		return getStatus(container)
 	default:
 		return fmt.Errorf("unknown action: %v", action)
 	}
@@ -43,6 +43,17 @@ func copyContainerId(container Container) error {
 		return err
 	}
 	logs.InfoMsg(fmt.Sprintf("Container ID copied to clipboard: %s", container.ID))
+	return nil
+}
+
+func getStatus(container Container) error {
+	status, err := forms.ChooseStatus(container)
+	if err != nil {
+		logs.ErrorMsg(fmt.Sprintf("Error choosing status: %v", err))
+		return err
+	}
+
+	logs.InfoMsg(fmt.Sprintf("Status chosen: %v", status))
 	return nil
 }
 

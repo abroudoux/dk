@@ -80,7 +80,7 @@ func (menu containerChoice) View() string {
 
         cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderContainerSelected(containerLine, menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderSelected(containerLine, menu.cursor == i))
     }
 
     return s
