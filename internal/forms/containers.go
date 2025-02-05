@@ -62,10 +62,18 @@ func (menu containerChoice) View() string {
 	for i, container := range menu.containers {
 		name, _ := strings.CutPrefix(container.Names[0], "/")
 		imageName := container.Image
-		// publicPort := container.Ports[0].PublicPort
-		publicPort := 0
-		privatePort := 0
-		// privatePort := container.Ports[0].PrivatePort
+
+		var publicPort uint16
+		var privatePort uint16
+
+		if len(container.Ports) > 0 {
+			publicPort = container.Ports[0].PublicPort
+			privatePort = container.Ports[0].PrivatePort
+		} else {
+			publicPort = 0
+			privatePort = 0
+		}
+
 		state := container.State
 		created := time.Unix(container.Created, 0).Format("2006-01-02 15:04:05")
 		containerLine := fmt.Sprintf("%s => %s (%d:%d) [%s - %s]", name, imageName, publicPort, privatePort, state, created)
