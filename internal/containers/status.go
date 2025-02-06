@@ -80,7 +80,7 @@ func (menu statusChoice) View() string {
 	for i, status := range menu.statuses {
 		cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderSelected(status.String(), menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderLineSelected(status.String(), menu.cursor == i))
 
 	}
 	return s

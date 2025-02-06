@@ -76,7 +76,7 @@ func (menu actionChoice) View() string {
 	for i, action := range menu.actions {
 		cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderSelected(action.String(), menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderLineSelected(action.String(), menu.cursor == i))
 	}
 
 	return s

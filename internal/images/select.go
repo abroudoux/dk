@@ -80,7 +80,7 @@ func (menu imageChoice) View() string {
 
         cursor := " "
         cursor = ui.RenderCursor(menu.cursor == i)
-        s += fmt.Sprintf("%s %s\n", cursor, ui.RenderSelected(imageLine, menu.cursor == i))
+        s += fmt.Sprintf("%s %s\n", cursor, ui.RenderLineSelected(imageLine, menu.cursor == i))
     }
 
     return s

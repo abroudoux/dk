@@ -14,13 +14,9 @@ func RenderElementSelected(element string) string {
 	return fmt.Sprintf("\033[%sm%s\033[0m", "38;2;214;112;214", element)
 }
 
-func RenderContainer(container string) string {
-    return fmt.Sprintf("\033[%sm%s\033[0m", "38;2;214;112;214", container)
-}
-
-func RenderSelected(container string, isSelected bool) string {
+func RenderLineSelected(line string, isSelected bool) string {
     if isSelected {
-        return fmt.Sprintf("\033[%sm%s\033[0m", "32", container)
+        return fmt.Sprintf("\033[%sm%s\033[0m", "32", line)
     }
-    return container
+    return line
 }

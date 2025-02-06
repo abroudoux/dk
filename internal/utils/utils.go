@@ -14,7 +14,7 @@ type Image = types.Image
 func RenderContainerName(container Container) string {
 	containerName := strings.Join(container.Names, "")
 	containerNameWithoutPreffix := strings.Trim(containerName, "/")
-	return ui.RenderContainer(containerNameWithoutPreffix)
+	return ui.RenderElementSelected(containerNameWithoutPreffix)
 }
 
 func RenderImageName(image Image) string {
