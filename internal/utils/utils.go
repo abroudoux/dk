@@ -18,8 +18,12 @@ func RenderContainerName(container Container) string {
 }
 
 func RenderImageName(image Image) string {
-    imageName := strings.Join(image.RepoTags, "")
-    return ui.RenderElementSelected(imageName)
+    if len(image.RepoTags) == 0 {
+        return ui.RenderElementSelected("<none>")
+    } else {
+        imageName := strings.Join(image.RepoTags, "")
+        return ui.RenderElementSelected(imageName)
+    }
 }
 
 func FormatSize(size int64) string {

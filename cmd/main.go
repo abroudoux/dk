@@ -30,7 +30,7 @@ func main() {
 		case "--images", "--image", "-i":
 			err := imageMode(ctx, cli)
 			if err != nil {
-				logs.Error("Error while image selection", err)
+				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
 		case "--all", "-a":
@@ -116,7 +116,11 @@ func imageMode(ctx context.Context, cli *client.Client) error {
 		return err
 	}
 
-	println(action)
+	err = img.DoImageAction(ctx, cli, imageSelected, action)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

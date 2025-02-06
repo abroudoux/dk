@@ -6,6 +6,7 @@ import (
 
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
+	"github.com/abroudoux/dk/internal/utils"
 	"github.com/atotto/clipboard"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -32,7 +33,7 @@ func DoContainerAction(ctx context.Context, cli *client.Client, container Contai
 	case ContainerActionsStatus:
 		return getStatus(container, ctx, cli)
 	default:
-		return fmt.Errorf("unknown action: %v", action)
+		return nil
 	}
 }
 
@@ -104,6 +105,6 @@ func deleteContainer(container Container, ctx context.Context, cli *client.Clien
         return fmt.Errorf("error removing container %s: %v", container.ID, err)
     }
 
-	logs.InfoMsg(fmt.Sprintf("Container %s removed successfully", container.ID))
+	logs.InfoMsg(fmt.Sprintf("Container %s removed successfully", utils.RenderContainerName(container)))
     return nil
 }
