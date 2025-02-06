@@ -13,10 +13,11 @@ type ImageAction int
 const (
 	ImageActionExit ImageAction = iota
 	ImageActionDelete
+	ImageActionRun
 )
 
 func (a ImageAction) String() string {
-	return [...]string{"Exit", "Delete"}[a]
+	return [...]string{"Exit", "Delete", "Run"}[a]
 }
 
 type actionChoice struct {
@@ -30,6 +31,7 @@ func initialActionModel(image Image) actionChoice {
 	actions := []ImageAction{
 		ImageActionExit,
 		ImageActionDelete,
+		ImageActionRun,
 	}
 
 	return actionChoice{

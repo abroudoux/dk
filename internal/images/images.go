@@ -27,6 +27,8 @@ func DoImageAction(ctx context.Context, cli *client.Client, image Image, action 
 		return nil
 	case ImageActionDelete:
 		return removeImage(image, ctx, cli)
+	case ImageActionRun:
+		return runImage(image, ctx, cli)
 	default:
 		return nil
 	}
@@ -41,3 +43,4 @@ func removeImage(image Image, ctx context.Context, cli *client.Client) error {
 	logs.InfoMsg(fmt.Sprintf("Image %s removed", utils.RenderImageName(image)))
 	return nil
 }
+
