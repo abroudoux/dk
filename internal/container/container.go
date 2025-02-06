@@ -29,9 +29,9 @@ func DoContainerAction(ctx context.Context, cli *client.Client, container Contai
 	case forms.ActionCopyContainerID:
 		return copyContainerId(container)
 	case forms.ActionDelete:
-		return deleteContainer(ctx, cli, container)
+		return deleteContainer(container, ctx, cli)
 	case forms.ActionsStatus:
-		return getStatus(container)
+		return getStatus(container, ctx, cli)
 	default:
 		return fmt.Errorf("unknown action: %v", action)
 	}
@@ -46,18 +46,57 @@ func copyContainerId(container Container) error {
 	return nil
 }
 
-func getStatus(container Container) error {
+func getStatus(container Container, ctx context.Context, cli *client.Client) error {
 	status, err := forms.ChooseStatus(container)
 	if err != nil {
 		logs.ErrorMsg(fmt.Sprintf("Error choosing status: %v", err))
 		return err
 	}
 
-	logs.InfoMsg(fmt.Sprintf("Status chosen: %v", status))
+	switch status {
+	case forms.StatusExit:
+		return nil
+	case forms.StatusPause:
+		return pauseContainer(container, ctx, cli)
+	case forms.StatusRestart:
+		return restartContainer(container, ctx, cli)
+	case forms.StatusStop:
+		return stopContainer(container, ctx, cli)
+	default:
+		return fmt.Errorf("unknown status: %v", status)
+	}
+}
+
+func pauseContainer(container Container, ctx context.Context, cli *client.Client) error {
+	err := cli.ContainerPause(ctx, container.ID)
+	if err != nil {
+		return fmt.Errorf("error pausing container %s: %v", container.ID, err)
+	}
+	logs.InfoMsg(fmt.Sprintf("Container %s paused successfully", container.ID))
 	return nil
 }
 
-func deleteContainer(ctx context.Context, cli *client.Client, container Container) error {
+func restartContainer(container Container, ctx context.Context, cli *client.Client) error {
+	restartOptions := containertypes.StopOptions{}
+	err := cli.ContainerRestart(ctx, container.ID, restartOptions)
+	if err != nil {
+		return fmt.Errorf("error restarting container %s: %v", container.ID, err)
+	}
+	logs.InfoMsg(fmt.Sprintf("Container %s restarted successfully", container.ID))
+	return nil
+}
+
+func stopContainer(container Container, ctx context.Context, cli *client.Client) error {
+	stopOptions := containertypes.StopOptions{}
+	err := cli.ContainerStop(ctx, container.ID, stopOptions)
+	if err != nil {
+		return fmt.Errorf("error stopping container %s: %v", container.ID, err)
+	}
+	logs.InfoMsg(fmt.Sprintf("Container %s stopped successfully", container.ID))
+	return nil
+}
+
+func deleteContainer(container Container, ctx context.Context, cli *client.Client) error {
 	removeOptions := containertypes.RemoveOptions{
         Force: true,
         RemoveVolumes: true,

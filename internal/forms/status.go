@@ -38,7 +38,7 @@ func initialStatusModel(container Container) statusChoice {
 	return statusChoice{
 		statuses: statuses,
 		cursor: len(statuses) - 1,
-		selectedStatus: StatusPause,
+		selectedStatus: StatusExit,
 		selectedContainer: container,
 	}
 }

@@ -61,8 +61,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		println(containerSelected.ID)
-
 		action, err := forms.ChooseAction(containerSelected)
 		if err != nil {
 			logs.Error("Error during action selection: ", err)

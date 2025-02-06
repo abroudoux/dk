@@ -87,11 +87,11 @@ func (menu containerChoice) View() string {
 }
 
 func ChooseContainer(containers []Container) (Container, error) {
-	containersMenu := tea.NewProgram(initialContainerModel(containers))
-	model, err := containersMenu.Run()
+	p := tea.NewProgram(initialContainerModel(containers))
+	m, err := p.Run()
 	if err != nil {
 		return Container{}, err
 	}
-	selectedContainer := model.(containerChoice).selectedContainer
+	selectedContainer := m.(containerChoice).selectedContainer
 	return selectedContainer, nil
 }
