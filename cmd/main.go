@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -9,18 +10,30 @@ import (
 	"github.com/abroudoux/dk/internal/container"
 	"github.com/abroudoux/dk/internal/docker"
 	"github.com/abroudoux/dk/internal/forms"
+	"github.com/abroudoux/dk/internal/image"
 	"github.com/abroudoux/dk/internal/logs"
+	"github.com/docker/docker/client"
 )
 
 func main() {
 	var showAllContainers bool = false
 
+	ctx, cli, err := docker.GetCtxCli()
+	if err != nil {
+		logs.Error("Error during docker client initialization: ", err)
+		os.Exit(1)
+	}
+
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
 		switch option {
+		case "--images", "--image", "-i":
+			imageMode(ctx, cli)
+			os.Exit(0)
 		case "--all", "-a":
 			showAllContainers = true
+			containerMode(ctx, cli, showAllContainers)
 		case "--help", "-h":
 			PrintHelpManual()
 			os.Exit(0)
@@ -33,13 +46,9 @@ func main() {
 			os.Exit(0)
 		}
 	}
+}
 
-	ctx, cli, err := docker.GetCtxCli()
-	if err != nil {
-		logs.Error("Error during docker client initialization: ", err)
-		os.Exit(1)
-	}
-
+func containerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
 	containers, err := container.GetContainers(ctx, cli, showAllContainers)
 	if err != nil {
 		logs.Error("Error during containers recuperation: ", err)
@@ -79,6 +88,17 @@ func main() {
 	<-sigChan
     fmt.Println("\nProgram interrupted. Exiting...")
     os.Exit(0)
+}
+
+func imageMode(ctx context.Context, cli *client.Client) {
+	images, err := image.GetImages(ctx, cli, true)
+	if err != nil {
+		logs.Error("Error during images recuperation: ", err)
+		os.Exit(1)
+	}
+	for _, img := range images {
+		println(img.ID)
+	}
 }
 
 
