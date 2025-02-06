@@ -3,6 +3,8 @@ package images
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/abroudoux/dk/internal/logs"
@@ -36,6 +38,10 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         return err
     }
 
+    if ports != "" && !checkPortInput(ports) {
+        return nil
+    }
+
     config := &containertypes.Config{
         Image: image.ID,
         Tty:   true,
@@ -64,4 +70,22 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
 
 	logs.InfoMsg(fmt.Sprintf("Container %s started", containerName))
     return nil
+}
+
+func checkPortInput(port string) bool {
+    portRegex := regexp.MustCompile(`^(\d+):(\d+)$`)
+    if !portRegex.MatchString(port) {
+        logs.ErrorMsg("Invalid port mapping. Please use the following format: host:container")
+        return false
+    }
+
+    portParts := strings.Split(port, ":")
+    _, errHost := strconv.Atoi(portParts[0])
+    _, errContainer := strconv.Atoi(portParts[1])
+    if errHost != nil || errContainer != nil {
+        logs.ErrorMsg("Invalid port numbers. Please use integers for both host and container ports")
+        return false
+    }
+
+    return true
 }
