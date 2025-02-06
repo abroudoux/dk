@@ -4,16 +4,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
-	"github.com/docker/docker/api/types"
 )
 
 type Container = types.Container
+type Image = types.Image
 
 func RenderContainerName(container Container) string {
 	containerName := strings.Join(container.Names, "")
 	containerNameWithoutPreffix := strings.Trim(containerName, "/")
 	return ui.RenderContainer(containerNameWithoutPreffix)
+}
+
+func RenderImageName(image Image) string {
+    imageName := strings.Join(image.RepoTags, "")
+    return ui.RenderElementSelected(imageName)
 }
 
 func FormatSize(size int64) string {

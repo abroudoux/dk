@@ -10,6 +10,10 @@ func RenderCursor(inLine bool) string {
 	return " "
 }
 
+func RenderElementSelected(element string) string {
+	return fmt.Sprintf("\033[%sm%s\033[0m", "38;2;214;112;214", element)
+}
+
 func RenderContainer(container string) string {
     return fmt.Sprintf("\033[%sm%s\033[0m", "38;2;214;112;214", container)
 }

@@ -110,7 +110,13 @@ func imageMode(ctx context.Context, cli *client.Client) error {
 	if err != nil {
 		return err
 	}
-	println(imageSelected.ID)
+
+	action, err := img.SelectAction(imageSelected)
+	if err != nil {
+		return err
+	}
+
+	println(action)
 	return nil
 }
 

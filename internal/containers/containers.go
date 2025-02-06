@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/abroudoux/dk/internal/logs"
+	"github.com/abroudoux/dk/internal/types"
 	"github.com/atotto/clipboard"
-	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 )
