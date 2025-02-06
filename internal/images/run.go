@@ -89,3 +89,9 @@ func checkPortInput(port string) bool {
 
     return true
 }
+
+func getEnv() []map[string]string {
+    var envs []map[string]string
+
+    return envs
+}
