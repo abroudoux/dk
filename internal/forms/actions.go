@@ -12,10 +12,12 @@ type Action int
 const (
 	ActionExit Action = iota
 	ActionCopyContainerID
+	ActionDelete
+	ActionsStatus
 )
 
 func (a Action) String() string {
-	return [...]string{"Exit", "Copy Container ID"}[a]
+	return [...]string{"Exit", "Copy Container ID", "Delete", "Status"}[a]
 }
 
 type actionChoice struct {
@@ -29,6 +31,8 @@ func initialActionModel(container Container) actionChoice {
 	actions := []Action{
 		ActionExit,
 		ActionCopyContainerID,
+		ActionDelete,
+		ActionsStatus,
 	}
 
 	return actionChoice{
@@ -75,7 +79,7 @@ func (menu actionChoice) View() string {
 	for i, action := range menu.actions {
 		cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
-		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderActionSelected(action.String(), menu.cursor == i))
+		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderSelected(action.String(), menu.cursor == i))
 	}
 
 	return s
