@@ -7,9 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/abroudoux/dk/internal/container"
+	con "github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/docker"
-	"github.com/abroudoux/dk/internal/forms"
 	"github.com/abroudoux/dk/internal/img"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/docker/docker/client"
@@ -54,7 +53,7 @@ func main() {
 }
 
 func containerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
-	containers, err := container.GetContainers(ctx, cli, showAllContainers)
+	containers, err := con.GetContainers(ctx, cli, showAllContainers)
 	if err != nil {
 		logs.Error("Error during containers recuperation: ", err)
 		os.Exit(1)
@@ -69,7 +68,7 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
     signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		containerSelected, err := forms.ChooseContainer(containers)
+		containerSelected, err := con.SelectContainer(containers)
 		if err != nil {
 			logs.Error("Error during container selection: ", err)
 			os.Exit(1)
@@ -80,13 +79,13 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 			os.Exit(0)
 		}
 
-		action, err := forms.ChooseAction(containerSelected)
+		action, err := con.SelectAction(containerSelected)
 		if err != nil {
 			logs.Error("Error during action selection: ", err)
 			os.Exit(1)
 		}
 
-		err = container.DoContainerAction(ctx, cli, containerSelected, action)
+		err = con.DoContainerAction(ctx, cli, containerSelected, action)
 		if err != nil {
 			logs.Error("Error during action execution: ", err)
 			os.Exit(1)

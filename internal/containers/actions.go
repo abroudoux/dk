@@ -1,4 +1,4 @@
-package forms
+package containers
 
 import (
 	"fmt"
@@ -8,38 +8,38 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Action int
+type ContainerAction int
 
 const (
-	ActionExit Action = iota
-	ActionCopyContainerID
-	ActionDelete
-	ActionsStatus
+	ContainerActionExit ContainerAction = iota
+	ContainerActionCopyContainerID
+	ContainerActionDelete
+	ContainerActionsStatus
 )
 
-func (a Action) String() string {
+func (a ContainerAction) String() string {
 	return [...]string{"Exit", "Copy Container ID", "Delete", "Status"}[a]
 }
 
 type actionChoice struct {
-	actions []Action
+	actions []ContainerAction
 	cursor int
-	selectedAction Action
+	selectedAction ContainerAction
 	selectedContainer Container
 }
 
 func initialActionModel(container Container) actionChoice {
-	actions := []Action{
-		ActionExit,
-		ActionCopyContainerID,
-		ActionDelete,
-		ActionsStatus,
+	actions := []ContainerAction{
+		ContainerActionExit,
+		ContainerActionCopyContainerID,
+		ContainerActionDelete,
+		ContainerActionsStatus,
 	}
 
 	return actionChoice{
 		actions: actions,
 		cursor: len(actions) - 1,
-		selectedAction: ActionExit,
+		selectedAction: ContainerActionExit,
 		selectedContainer: container,
 	}
 }
@@ -86,11 +86,11 @@ func (menu actionChoice) View() string {
 	return s
 }
 
-func ChooseAction(container Container) (Action, error) {
+func SelectAction(container Container) (ContainerAction, error) {
 	p := tea.NewProgram(initialActionModel(container))
 	m, err := p.Run()
 	if err != nil {
-		return ActionExit, err
+		return ContainerActionExit, err
 	}
 
 	action := m.(actionChoice).selectedAction

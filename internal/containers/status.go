@@ -1,4 +1,4 @@
-package forms
+package containers
 
 import (
 	"fmt"
@@ -8,38 +8,38 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Status int
+type ContainerStatus int
 
 const (
-	StatusExit Status = iota
-	StatusPause
-	StatusRestart
-	StatusStop
+	ContainerStatusExit ContainerStatus = iota
+	ContainerStatusPause
+	ContainerStatusRestart
+	ContainerStatusStop
 )
 
-func (s Status) String() string {
+func (s ContainerStatus) String() string {
 	return [...]string{"Exit", "Pause", "Restart", "Stop"}[s]
 }
 
 type statusChoice struct {
-	statuses []Status
+	statuses []ContainerStatus
 	cursor int
-	selectedStatus Status
+	selectedStatus ContainerStatus
 	selectedContainer Container
 }
 
 func initialStatusModel(container Container) statusChoice {
-	statuses := []Status{
-		StatusExit,
-		StatusPause,
-		StatusRestart,
-		StatusStop,
+	statuses := []ContainerStatus{
+		ContainerStatusExit,
+		ContainerStatusPause,
+		ContainerStatusRestart,
+		ContainerStatusStop,
 	}
 
 	return statusChoice{
 		statuses: statuses,
 		cursor: len(statuses) - 1,
-		selectedStatus: StatusExit,
+		selectedStatus: ContainerStatusExit,
 		selectedContainer: container,
 	}
 }
@@ -86,11 +86,11 @@ func (menu statusChoice) View() string {
 	return s
 }
 
-func ChooseStatus(container Container) (Status, error) {
+func SelectStatus(container Container) (ContainerStatus, error) {
 	p := tea.NewProgram(initialStatusModel(container))
 	m, err := p.Run()
 	if err != nil {
-		return StatusExit, err
+		return ContainerStatusExit, err
 	}
 
 	status := m.(statusChoice).selectedStatus

@@ -1,4 +1,4 @@
-package forms
+package containers
 
 import (
 	"fmt"
@@ -7,10 +7,7 @@ import (
 
 	"github.com/abroudoux/dk/internal/ui"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/docker/docker/api/types"
 )
-
-type Container = types.Container
 
 type containerChoice struct {
 	containers []Container
@@ -86,7 +83,7 @@ func (menu containerChoice) View() string {
     return s
 }
 
-func ChooseContainer(containers []Container) (Container, error) {
+func SelectContainer(containers []Container) (Container, error) {
 	p := tea.NewProgram(initialContainerModel(containers))
 	m, err := p.Run()
 	if err != nil {

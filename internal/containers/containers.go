@@ -1,10 +1,9 @@
-package container
+package containers
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/abroudoux/dk/internal/forms"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/atotto/clipboard"
 	"github.com/docker/docker/api/types"
@@ -22,15 +21,15 @@ func GetContainers(ctx context.Context, cli *client.Client, showAllContainers bo
 	return containers, err
 }
 
-func DoContainerAction(ctx context.Context, cli *client.Client, container Container, action forms.Action) error {
+func DoContainerAction(ctx context.Context, cli *client.Client, container Container, action ContainerAction) error {
 	switch action {
-	case forms.ActionExit:
+	case ContainerActionExit:
 		return nil
-	case forms.ActionCopyContainerID:
+	case ContainerActionCopyContainerID:
 		return copyContainerId(container)
-	case forms.ActionDelete:
+	case ContainerActionDelete:
 		return deleteContainer(container, ctx, cli)
-	case forms.ActionsStatus:
+	case ContainerActionsStatus:
 		return getStatus(container, ctx, cli)
 	default:
 		return fmt.Errorf("unknown action: %v", action)
@@ -47,20 +46,20 @@ func copyContainerId(container Container) error {
 }
 
 func getStatus(container Container, ctx context.Context, cli *client.Client) error {
-	status, err := forms.ChooseStatus(container)
+	status, err := SelectStatus(container)
 	if err != nil {
 		logs.ErrorMsg(fmt.Sprintf("Error choosing status: %v", err))
 		return err
 	}
 
 	switch status {
-	case forms.StatusExit:
+	case ContainerStatusExit:
 		return nil
-	case forms.StatusPause:
+	case ContainerStatusPause:
 		return pauseContainer(container, ctx, cli)
-	case forms.StatusRestart:
+	case ContainerStatusRestart:
 		return restartContainer(container, ctx, cli)
-	case forms.StatusStop:
+	case ContainerStatusStop:
 		return stopContainer(container, ctx, cli)
 	default:
 		return fmt.Errorf("unknown status: %v", status)
