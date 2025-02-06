@@ -14,11 +14,12 @@ const (
 	ContainerActionExit ContainerAction = iota
 	ContainerActionCopyContainerID
 	ContainerActionDelete
+	ContainerActionLogs
 	ContainerActionsStatus
 )
 
 func (a ContainerAction) String() string {
-	return [...]string{"Exit", "Copy Container ID", "Delete", "Status"}[a]
+	return [...]string{"Exit", "Copy Container ID", "Delete", "Logs", "Status"}[a]
 }
 
 type actionChoice struct {
@@ -33,6 +34,7 @@ func initialActionModel(container Container) actionChoice {
 		ContainerActionExit,
 		ContainerActionCopyContainerID,
 		ContainerActionDelete,
+		ContainerActionLogs,
 		ContainerActionsStatus,
 	}
 

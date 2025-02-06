@@ -30,6 +30,8 @@ func DoContainerAction(ctx context.Context, cli *client.Client, container Contai
 		return copyContainerId(container)
 	case ContainerActionDelete:
 		return deleteContainer(container, ctx, cli)
+	case ContainerActionLogs:
+		return getLogs(container, ctx, cli)
 	case ContainerActionsStatus:
 		return getStatus(container, ctx, cli)
 	default:
@@ -107,4 +109,24 @@ func deleteContainer(container Container, ctx context.Context, cli *client.Clien
 
 	logs.InfoMsg(fmt.Sprintf("Container %s removed successfully", utils.RenderContainerName(container)))
     return nil
+}
+
+func getLogs(container Container, ctx context.Context, cli *client.Client) error {
+	logOptions := containertypes.LogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Timestamps: true,
+	}
+
+	_, err := cli.ContainerLogs(ctx, container.ID, logOptions)
+	if err != nil {
+		return fmt.Errorf("error getting logs for container %s: %v", container.ID, err)
+	}
+
+	logs.InfoMsg(fmt.Sprintf("Logs for container %s", utils.RenderContainerName(container)))
+	// if _, err := logs.CopyLogs(logsReader); err != nil {
+	// 	return fmt.Errorf("error copying logs for container %s: %v", container.ID, err)
+	// }
+	return nil
 }
