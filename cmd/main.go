@@ -75,6 +75,11 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 			os.Exit(1)
 		}
 
+		if containerSelected.ID == "" {
+			logs.InfoMsg("No container selected. Exiting program.")
+			os.Exit(0)
+		}
+
 		action, err := forms.ChooseAction(containerSelected)
 		if err != nil {
 			logs.Error("Error during action selection: ", err)
