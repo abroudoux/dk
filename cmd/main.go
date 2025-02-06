@@ -40,7 +40,7 @@ func main() {
 			PrintHelpManual()
 			os.Exit(0)
 		case "--version", "-v":
-			fmt.Println("dk version 0.0.1")
+			fmt.Println("dk version 0.1.0")
 			os.Exit(0)
 		default:
 			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))
