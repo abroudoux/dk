@@ -16,23 +16,18 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
     var (
         containerName    string
         ports            string
-        // removeContainer  bool
     )
 
     form := huh.NewForm(
         huh.NewGroup(
             huh.NewInput().
-                Title("Container name (--name)").
+                Title("Container name (--name) (Optional)").
                 Value(&containerName),
 
             huh.NewInput().
                 Title("Port mapping (-p)").
                 Placeholder("host:container").
                 Value(&ports),
-
-            // huh.NewConfirm().
-            //     Title("Remove container when it exits (--rm)?").
-            //     Value(&removeContainer),
         ),
     )
 
@@ -47,7 +42,6 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
     }
 
     hostConfig := &containertypes.HostConfig{
-        // AutoRemove: removeContainer,
         AutoRemove: false,
     }
 
