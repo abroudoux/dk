@@ -20,10 +20,3 @@ func RenderSelected(container string, isSelected bool) string {
     }
     return container
 }
-
-func RenderActionSelected(action string, isSelected bool) string {
-    if isSelected {
-        return fmt.Sprintf("\033[%sm%s\033[0m", "32", action)
-    }
-    return action
-}
