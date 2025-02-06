@@ -9,7 +9,7 @@ import (
 
 	con "github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/docker"
-	"github.com/abroudoux/dk/internal/img"
+	img "github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/docker/docker/client"
 )
