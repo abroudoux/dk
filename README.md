@@ -8,7 +8,24 @@
 
 ### Homebrew
 
-Should coming soon!
+Add my tap
+
+```bash
+brew tap abroudoux/tap
+```
+
+Then you'll be able to download it using
+
+```bash
+brew install abroudoux/tap/dk
+```
+
+Congratulations!
+
+```bash
+dk --version
+# dk version 0.1.0
+```
 
 ### Manual
 
