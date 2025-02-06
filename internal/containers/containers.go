@@ -3,6 +3,8 @@ package containers
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
@@ -112,21 +114,27 @@ func deleteContainer(container Container, ctx context.Context, cli *client.Clien
 }
 
 func getLogs(container Container, ctx context.Context, cli *client.Client) error {
-	logOptions := containertypes.LogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Follow:     true,
-		Timestamps: true,
-	}
+    logOptions := containertypes.LogsOptions{
+        ShowStdout: true,
+        ShowStderr: true,
+        Follow:     true,
+        Timestamps: true,
+        Tail:       "50",
+    }
 
-	_, err := cli.ContainerLogs(ctx, container.ID, logOptions)
-	if err != nil {
-		return fmt.Errorf("error getting logs for container %s: %v", container.ID, err)
-	}
+    logsReader, err := cli.ContainerLogs(ctx, container.ID, logOptions)
+    if err != nil {
+        return fmt.Errorf("error getting logs for container %s: %v", container.ID, err)
+    }
+    defer logsReader.Close()
 
-	logs.InfoMsg(fmt.Sprintf("Logs for container %s", utils.RenderContainerName(container)))
-	// if _, err := logs.CopyLogs(logsReader); err != nil {
-	// 	return fmt.Errorf("error copying logs for container %s: %v", container.ID, err)
-	// }
-	return nil
+    logs.InfoMsg(fmt.Sprintf("Logs for container %s", utils.RenderContainerName(container)))
+
+    _, err = io.Copy(os.Stdout, logsReader)
+    if err != nil {
+        return fmt.Errorf("error copying logs for container %s: %v", container.ID, err)
+    }
+
+    return nil
 }
+
