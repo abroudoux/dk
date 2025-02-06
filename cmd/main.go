@@ -29,7 +29,10 @@ func main() {
 
 		switch option {
 		case "--images", "--image", "-i":
-			imageMode(ctx, cli)
+			err := imageMode(ctx, cli)
+			if err != nil {
+				logs.Error("Error while image selection", err)
+			}
 			os.Exit(0)
 		case "--all", "-a":
 			showAllContainers = true
@@ -46,6 +49,8 @@ func main() {
 			os.Exit(0)
 		}
 	}
+
+	containerMode(ctx, cli, showAllContainers)
 }
 
 func containerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
@@ -90,15 +95,29 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
     os.Exit(0)
 }
 
-func imageMode(ctx context.Context, cli *client.Client) {
+func imageMode(ctx context.Context, cli *client.Client) error {
 	images, err := image.GetImages(ctx, cli, true)
 	if err != nil {
 		logs.Error("Error during images recuperation: ", err)
 		os.Exit(1)
 	}
-	for _, img := range images {
-		println(img.ID)
+	// for _, img := range images {
+    //     v := reflect.ValueOf(img)
+    //     t := v.Type()
+    //     for i := 0; i < v.NumField(); i++ {
+    //         field := t.Field(i)
+    //         value := v.Field(i)
+    //         fmt.Printf("%s: %v\n", field.Name, value.Interface())
+    //     }
+    //     fmt.Println("---")
+    // }
+
+	imageSelected, err := forms.ChooseImage(images)
+	if err != nil {
+		return err
 	}
+	println(imageSelected.ID)
+	return nil
 }
 
 
