@@ -10,7 +10,7 @@ import (
 	"github.com/abroudoux/dk/internal/container"
 	"github.com/abroudoux/dk/internal/docker"
 	"github.com/abroudoux/dk/internal/forms"
-	"github.com/abroudoux/dk/internal/image"
+	"github.com/abroudoux/dk/internal/img"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/docker/docker/client"
 )
@@ -101,23 +101,13 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 }
 
 func imageMode(ctx context.Context, cli *client.Client) error {
-	images, err := image.GetImages(ctx, cli, true)
+	images, err := img.GetImages(ctx, cli, true)
 	if err != nil {
 		logs.Error("Error during images recuperation: ", err)
 		os.Exit(1)
 	}
-	// for _, img := range images {
-    //     v := reflect.ValueOf(img)
-    //     t := v.Type()
-    //     for i := 0; i < v.NumField(); i++ {
-    //         field := t.Field(i)
-    //         value := v.Field(i)
-    //         fmt.Printf("%s: %v\n", field.Name, value.Interface())
-    //     }
-    //     fmt.Println("---")
-    // }
 
-	imageSelected, err := forms.ChooseImage(images)
+	imageSelected, err := img.SelectImage(images)
 	if err != nil {
 		return err
 	}
