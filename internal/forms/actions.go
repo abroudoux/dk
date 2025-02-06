@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/abroudoux/dk/internal/ui"
+	"github.com/abroudoux/dk/internal/utils"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -74,7 +75,7 @@ func (menu actionChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (menu actionChoice) View() string {
 	s := "\033[H\033[2J"
-	s += fmt.Sprintf("Container: %s\n\n", menu.selectedContainer.Names[0])
+	s += fmt.Sprintf("Container: %s\n\n", utils.RenderContainerName(menu.selectedContainer))
 
 	for i, action := range menu.actions {
 		cursor := " "
