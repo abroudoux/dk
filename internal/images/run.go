@@ -73,7 +73,7 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
 }
 
 func checkPortInput(port string) bool {
-    portRegex := regexp.MustCompile(`^(\d+):(\d+)$`)
+    portRegex := regexp.MustCompile(`^(\d+s):(\d+)$`)
     if !portRegex.MatchString(port) {
         logs.ErrorMsg("Invalid port mapping. Please use the following format: host:container")
         return false

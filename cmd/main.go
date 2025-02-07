@@ -33,6 +33,12 @@ func main() {
 				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
+		case "--build", "-build", "-b":
+			err := buildMode(ctx, cli)
+			if err != nil {
+				logs.Error("Error: ", err)
+			}
+			os.Exit(0)
 		case "--all", "-a":
 			showAllContainers = true
 			containerMode(ctx, cli, showAllContainers)
@@ -100,7 +106,7 @@ func containerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 }
 
 func imageMode(ctx context.Context, cli *client.Client) error {
-	images, err := img.GetImages(ctx, cli, true)
+	images, err := img.GetImages(ctx, cli, false)
 	if err != nil {
 		logs.Error("Error during images recuperation: ", err)
 		os.Exit(1)
@@ -124,6 +130,14 @@ func imageMode(ctx context.Context, cli *client.Client) error {
 	return nil
 }
 
+func buildMode(ctx context.Context, cli *client.Client) error {
+	err := img.BuildImage(ctx, cli)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func PrintHelpManual() {
 	fmt.Println("Usage: dk [options]")
