@@ -86,7 +86,7 @@ func (menu imageChoice) View() string {
     return s
 }
 
-func SelectImage(images []Image) (Image, error) {
+func selectImage(images []Image) (Image, error) {
 	p := tea.NewProgram(initialImageModel(images))
 	m, err := p.Run()
 	if err != nil {

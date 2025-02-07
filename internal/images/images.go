@@ -3,6 +3,7 @@ package images
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
@@ -13,7 +14,41 @@ import (
 
 type Image = types.Image
 
-func GetImages(ctx context.Context, cli *client.Client, showAllImages bool) ([]Image, error) {
+func ImageMode(ctx context.Context, cli *client.Client) error {
+	images, err := getImages(ctx, cli, false)
+	if err != nil {
+		logs.Error("Error during images recuperation: ", err)
+		os.Exit(1)
+	}
+
+	imageSelected, err := selectImage(images)
+	if err != nil {
+		return err
+	}
+
+	action, err := selectAction(imageSelected)
+	if err != nil {
+		return err
+	}
+
+	err = doImageAction(ctx, cli, imageSelected, action)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func BuildMode(ctx context.Context, cli *client.Client) error {
+	err := buildImage(ctx, cli)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getImages(ctx context.Context, cli *client.Client, showAllImages bool) ([]Image, error) {
 	images, err := cli.ImageList(ctx, imagetypes.ListOptions{All: showAllImages})
 	if err != nil {
 		return nil, err
@@ -21,7 +56,7 @@ func GetImages(ctx context.Context, cli *client.Client, showAllImages bool) ([]I
 	return images, err
 }
 
-func DoImageAction(ctx context.Context, cli *client.Client, image Image, action ImageAction) error {
+func doImageAction(ctx context.Context, cli *client.Client, image Image, action ImageAction) error {
 	switch action {
 	case ImageActionExit:
 		return nil

@@ -88,7 +88,7 @@ func (menu actionChoice) View() string {
 	return s
 }
 
-func SelectAction(container Container) (ContainerAction, error) {
+func selectAction(container Container) (ContainerAction, error) {
 	p := tea.NewProgram(initialActionModel(container))
 	m, err := p.Run()
 	if err != nil {

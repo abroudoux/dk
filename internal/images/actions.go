@@ -84,7 +84,7 @@ func (menu actionChoice) View() string {
 	return s
 }
 
-func SelectAction(image Image) (ImageAction, error) {
+func selectAction(image Image) (ImageAction, error) {
 	p := tea.NewProgram(initialActionModel(image))
 	m, err := p.Run()
 	if err != nil {

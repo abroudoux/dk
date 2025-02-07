@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
@@ -16,7 +18,54 @@ import (
 
 type Container = types.Container
 
-func GetContainers(ctx context.Context, cli *client.Client, showAllContainers bool) ([]Container, error) {
+func ContainerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
+	containers, err := getContainers(ctx, cli, showAllContainers)
+	if err != nil {
+		logs.Error("Error during containers recuperation: ", err)
+		os.Exit(1)
+	}
+
+	if len(containers) == 0 {
+		logs.WarnMsg("No containers found")
+		os.Exit(0)
+	}
+
+	sigChan := make(chan os.Signal, 1)
+    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		containerSelected, err := selectContainer(containers)
+		if err != nil {
+			logs.Error("Error during container selection: ", err)
+			os.Exit(1)
+		}
+
+		if containerSelected.ID == "" {
+			logs.InfoMsg("No container selected. Exiting program.")
+			os.Exit(0)
+		}
+
+		action, err := selectAction(containerSelected)
+		if err != nil {
+			logs.Error("Error during action selection: ", err)
+			os.Exit(1)
+		}
+
+		err = doContainerAction(ctx, cli, containerSelected, action)
+		if err != nil {
+			logs.Error("Error during action execution: ", err)
+			os.Exit(1)
+		}
+
+		os.Exit(0)
+    }()
+
+	<-sigChan
+    fmt.Println("\nProgram interrupted. Exiting...")
+    os.Exit(0)
+}
+
+func getContainers(ctx context.Context, cli *client.Client, showAllContainers bool) ([]Container, error) {
 	containers, err := cli.ContainerList(ctx, containertypes.ListOptions{All: showAllContainers})
 	if err != nil {
 		return nil, err
@@ -24,7 +73,7 @@ func GetContainers(ctx context.Context, cli *client.Client, showAllContainers bo
 	return containers, err
 }
 
-func DoContainerAction(ctx context.Context, cli *client.Client, container Container, action ContainerAction) error {
+func doContainerAction(ctx context.Context, cli *client.Client, container Container, action ContainerAction) error {
 	switch action {
 	case ContainerActionExit:
 		return nil

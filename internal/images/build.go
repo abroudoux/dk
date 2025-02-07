@@ -14,7 +14,7 @@ import (
 	"github.com/docker/docker/pkg/archive"
 )
 
-func BuildImage(ctx context.Context, cli *client.Client) error {
+func buildImage(ctx context.Context, cli *client.Client) error {
     var imageName string
 
     form := huh.NewForm(

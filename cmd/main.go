@@ -1,18 +1,14 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	con "github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/docker"
 	img "github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/utils"
-	"github.com/docker/docker/client"
 )
 
 func main() {
@@ -30,20 +26,20 @@ func main() {
 
 		switch option {
 		case "--images", "--image", "-i":
-			err := imageMode(ctx, cli)
+			err := img.ImageMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
 		case "--build", "-build", "-b":
-			err := buildMode(ctx, cli)
+			err := img.BuildMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
 		case "--all", "-a":
 			showAllContainers = true
-			containerMode(ctx, cli, showAllContainers)
+			con.ContainerMode(ctx, cli, showAllContainers)
 		case "--help", "-h":
 			PrintHelpManual()
 			os.Exit(0)
@@ -57,88 +53,7 @@ func main() {
 		}
 	}
 
-	containerMode(ctx, cli, showAllContainers)
-}
-
-func containerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
-	containers, err := con.GetContainers(ctx, cli, showAllContainers)
-	if err != nil {
-		logs.Error("Error during containers recuperation: ", err)
-		os.Exit(1)
-	}
-
-	if len(containers) == 0 {
-		logs.WarnMsg("No containers found")
-		os.Exit(0)
-	}
-
-	sigChan := make(chan os.Signal, 1)
-    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		containerSelected, err := con.SelectContainer(containers)
-		if err != nil {
-			logs.Error("Error during container selection: ", err)
-			os.Exit(1)
-		}
-
-		if containerSelected.ID == "" {
-			logs.InfoMsg("No container selected. Exiting program.")
-			os.Exit(0)
-		}
-
-		action, err := con.SelectAction(containerSelected)
-		if err != nil {
-			logs.Error("Error during action selection: ", err)
-			os.Exit(1)
-		}
-
-		err = con.DoContainerAction(ctx, cli, containerSelected, action)
-		if err != nil {
-			logs.Error("Error during action execution: ", err)
-			os.Exit(1)
-		}
-
-		os.Exit(0)
-    }()
-
-	<-sigChan
-    fmt.Println("\nProgram interrupted. Exiting...")
-    os.Exit(0)
-}
-
-func imageMode(ctx context.Context, cli *client.Client) error {
-	images, err := img.GetImages(ctx, cli, false)
-	if err != nil {
-		logs.Error("Error during images recuperation: ", err)
-		os.Exit(1)
-	}
-
-	imageSelected, err := img.SelectImage(images)
-	if err != nil {
-		return err
-	}
-
-	action, err := img.SelectAction(imageSelected)
-	if err != nil {
-		return err
-	}
-
-	err = img.DoImageAction(ctx, cli, imageSelected, action)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func buildMode(ctx context.Context, cli *client.Client) error {
-	err := img.BuildImage(ctx, cli)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	con.ContainerMode(ctx, cli, showAllContainers)
 }
 
 func PrintHelpManual() {
