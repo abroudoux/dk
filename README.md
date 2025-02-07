@@ -83,7 +83,7 @@ Create a branch with a [conventionnal name](https://tilburgsciencehub.com/buildi
 - [ ] Volumes management
 - [ ] Networks management
 - [x] Create images from source
-- [ ] `-env` flag when running a container
+- [x] `-env` flag when running a container
 
 ## 📑 License
 
