@@ -24,7 +24,7 @@ Congratulations!
 
 ```bash
 dk --version
-# dk version 0.1.0
+# dk version 0.2.0
 ```
 
 ### Manual
@@ -46,7 +46,7 @@ You can now use `dk`!
 
 ```bash
 dk --version
-# dk version 0.1.0
+# dk version 0.2.0
 ```
 
 ## 💻 Usage
