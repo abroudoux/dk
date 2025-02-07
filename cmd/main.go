@@ -146,5 +146,6 @@ func PrintHelpManual() {
 	fmt.Printf("  %-20s %s\n", "dk", "Run the program")
 	fmt.Printf("  %-20s %s\n", "dk [--all | -a]", "Run the program including all containers")
 	fmt.Printf("  %-20s %s\n", "dk [--images | -i]", "Run image mode")
+	fmt.Printf("  %-20s %s\n", "dk [--build | -b]", "Build a new image from a Dockerfile in the current directory")
 	fmt.Printf("  %-20s %s\n", "dk [--help | -h]", "Show this help message")
 }
