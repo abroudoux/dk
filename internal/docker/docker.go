@@ -1,18 +1,17 @@
 package docker
 
 import (
-	"context"
+	"fmt"
 
 	"github.com/docker/docker/client"
 )
 
-func GetCtxCli() (context.Context, *client.Client, error) {
-	ctx := context.Background()
+func GetCli() (*client.Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return ctx, nil, err
+		return nil, fmt.Errorf("error during docker client initialization: %w", err)
 	}
 	defer cli.Close()
 
-	return ctx, cli, nil
+	return cli, nil
 }

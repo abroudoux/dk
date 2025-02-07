@@ -11,13 +11,15 @@ import (
 	"github.com/abroudoux/dk/internal/docker"
 	img "github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
+	"github.com/abroudoux/dk/internal/utils"
 	"github.com/docker/docker/client"
 )
 
 func main() {
 	var showAllContainers bool = false
 
-	ctx, cli, err := docker.GetCtxCli()
+	ctx := utils.GetContext()
+	cli, err := docker.GetCli()
 	if err != nil {
 		logs.Error("Error during docker client initialization: ", err)
 		os.Exit(1)

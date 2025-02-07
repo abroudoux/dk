@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -11,6 +12,11 @@ import (
 
 type Container = types.Container
 type Image = types.Image
+
+func GetContext() context.Context {
+    ctx := context.Background()
+    return ctx
+}
 
 func RenderContainerName(container Container) string {
 	containerName := strings.Join(container.Names, "")
