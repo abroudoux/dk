@@ -6,6 +6,7 @@ import (
 
 	"github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
+	"github.com/charmbracelet/huh"
 )
 
 type Container = types.Container
@@ -37,4 +38,10 @@ func FormatSize(size int64) string {
         exp++
     }
     return fmt.Sprintf("%.1f%cB", float64(size)/float64(div), "KMGTPE"[exp])
+}
+
+func GetConfirmation(message string) bool {
+	var confirm bool
+	huh.NewConfirm().Title(message).Negative("No").Affirmative("Yes!").Value(&confirm).Run()
+	return confirm
 }
