@@ -24,7 +24,13 @@ Congratulations!
 
 ```bash
 dk --version
-# dk version 0.2.1
+#       _ _
+#    __| | | __
+#   / _` | |/ /
+#  | (_| |   <
+#   \__,_|_|\_\
+
+# dk version 0.2.2
 ```
 
 ### Manual
@@ -46,7 +52,13 @@ You can now use `dk`!
 
 ```bash
 dk --version
-# dk version 0.2.1
+#       _ _
+#    __| | | __
+#   / _` | |/ /
+#  | (_| |   <
+#   \__,_|_|\_\
+
+# dk version 0.2.2
 ```
 
 ## 💻 Usage
