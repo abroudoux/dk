@@ -26,11 +26,11 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
     form := huh.NewForm(
         huh.NewGroup(
             huh.NewInput().
-                Title("Container name (--name) (Optional)").
+                Title("Container name (--name) (Optionnal)").
                 Value(&containerName),
 
             huh.NewInput().
-                Title("Port mapping (-p)").
+                Title("Port mapping (-p) (Leave empty to use exposed port)").
                 Placeholder("host:container").
                 Value(&ports),
 
