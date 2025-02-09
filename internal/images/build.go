@@ -3,6 +3,7 @@ package images
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,9 +19,9 @@ import (
 func buildImage(ctx context.Context, cli *client.Client) error {
     var imageName string
 
-    if _, err := os.Stat("Dockerfile"); os.IsNotExist(err) {
+    if _, err := os.Stat("Dockerfile"); errors.Is(err, os.ErrNotExist) {
         logs.ErrorMsg("Dockerfile not found in current directory")
-        return fmt.Errorf("dockerfile not found", err)
+        return fmt.Errorf("dockerfile not found: %v", err)
     }
 
     form := huh.NewForm(

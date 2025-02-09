@@ -47,10 +47,6 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         return fmt.Errorf("Failed to run form: %v", err)
     }
 
-    if ports != "" && !checkPortInput(ports) {
-        return fmt.Errorf("Invalid port mapping")
-    }
-
     if env {
         getEnvs(&envs)
     }
@@ -65,7 +61,30 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         AutoRemove: false,
     }
 
-    if ports != "" {
+    if ports == "" {
+        imageInspect, _, err := cli.ImageInspectWithRaw(ctx, image.ID)
+        if err != nil {
+            return fmt.Errorf("Failed to inspect image: %v", err)
+        }
+
+        var exposedPort string
+        for port := range imageInspect.Config.ExposedPorts {
+            exposedPort = string(port)
+            break
+        }
+
+        if exposedPort != "" {
+            portNumber := strings.Split(exposedPort, "/")[0]
+            ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
+            logs.InfoMsg(fmt.Sprintf("Using exposed port: %s", ports))
+        } else {
+            logs.WarnMsg("No exposed ports found in the image")
+        }
+    } else {
+        if !checkPortInput(ports) {
+            return fmt.Errorf("Invalid port mapping")
+        }
+
         hostConfig.PortBindings = nat.PortMap{
             nat.Port(strings.Split(ports, ":")[1] + "/tcp"): []nat.PortBinding{
                 {HostIP: "0.0.0.0", HostPort: strings.Split(ports, ":")[0]},
