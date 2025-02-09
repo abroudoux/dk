@@ -21,6 +21,7 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         ports            string
         env              bool
         envs             []string
+        removeContainer  bool
     )
 
     form := huh.NewForm(
@@ -39,6 +40,12 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
                 Negative("No").
                 Affirmative("Yes").
                 Value(&env),
+
+            huh.NewConfirm().
+                Title("Do you want to remove the container after stopping it?").
+                Negative("No").
+                Affirmative("Yes").
+                Value(&removeContainer),
         ),
     )
 
@@ -58,7 +65,7 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
     }
 
     hostConfig := &containertypes.HostConfig{
-        AutoRemove: false,
+        AutoRemove: removeContainer,
     }
 
     if ports == "" {
@@ -76,20 +83,19 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         if exposedPort != "" {
             portNumber := strings.Split(exposedPort, "/")[0]
             ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
-            logs.InfoMsg(fmt.Sprintf("Using exposed port: %s", ports))
         } else {
             logs.WarnMsg("No exposed ports found in the image")
         }
-    } else {
-        if !checkPortInput(ports) {
-            return fmt.Errorf("Invalid port mapping")
-        }
+    }
 
-        hostConfig.PortBindings = nat.PortMap{
-            nat.Port(strings.Split(ports, ":")[1] + "/tcp"): []nat.PortBinding{
-                {HostIP: "0.0.0.0", HostPort: strings.Split(ports, ":")[0]},
-            },
-        }
+    if !checkPortInput(ports) {
+        return fmt.Errorf("Invalid port mapping")
+    }
+
+    hostConfig.PortBindings = nat.PortMap{
+        nat.Port(strings.Split(ports, ":")[1] + "/tcp"): []nat.PortBinding{
+            {HostIP: "0.0.0.0", HostPort: strings.Split(ports, ":")[0]},
+        },
     }
 
     resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
