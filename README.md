@@ -35,14 +35,14 @@ dk --version
 
 ### Manual
 
-You can create the binary
+You can create the binary with
 
 ```bash
 go build -o dk ./cmd/main.go
 ```
 
-Then paste it in your `bin` directory (e.g., on MacOS it's `/usr/bin/local`). \
-Don't forget to grant execution perssions.
+Then paste it in your `bin` directory (e.g., on MacOS it's `/usr/bin/local`) \
+Don't forget to grant execution perssions
 
 ```bash
 chmod +x dk
@@ -65,7 +65,7 @@ dk --version
 
 ### Taskfile
 
-Install [Taskfile](https://taskfile.dev/installation/) and use it to run the program.
+Install [Taskfile](https://taskfile.dev/installation/) and use it to run the program
 
 ```bash
 task run
@@ -73,7 +73,7 @@ task run
 
 ### Manual
 
-Execute the binary by using.
+Execute the binary by using
 
 ```bash
 go build -o ./bin/dk ./cmd/main.go && ./bin/dk
