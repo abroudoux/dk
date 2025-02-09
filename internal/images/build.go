@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/abroudoux/dk/internal/logs"
@@ -16,6 +17,11 @@ import (
 
 func buildImage(ctx context.Context, cli *client.Client) error {
     var imageName string
+
+    if _, err := os.Stat("Dockerfile"); os.IsNotExist(err) {
+        logs.ErrorMsg("Dockerfile not found in current directory")
+        return fmt.Errorf("dockerfile not found", err)
+    }
 
     form := huh.NewForm(
         huh.NewGroup(
