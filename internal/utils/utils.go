@@ -51,3 +51,7 @@ func GetConfirmation(message string) bool {
 	huh.NewConfirm().Title(message).Negative("No").Affirmative("Yes!").Value(&confirm).Run()
 	return confirm
 }
+
+func CleanView() {
+    println("\033[H\033[2J")
+}
