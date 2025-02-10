@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	comp "github.com/abroudoux/dk/internal/compose"
 	con "github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/docker"
 	img "github.com/abroudoux/dk/internal/images"
@@ -37,9 +38,11 @@ func main() {
 				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
+        case "--compose", "-c":
+            comp.ComposeMode(ctx, cli)
+            os.Exit(0)
 		case "--all", "-a":
 			showAllContainers = true
-			con.ContainerMode(ctx, cli, showAllContainers)
 		case "--help", "-h":
 			printHelpManual()
 			os.Exit(0)
@@ -55,6 +58,7 @@ func main() {
 	}
 
 	con.ContainerMode(ctx, cli, showAllContainers)
+    os.Exit(0)
 }
 
 func printHelpManual() {
