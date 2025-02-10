@@ -53,7 +53,7 @@ func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (menu containerChoice) View() string {
-	s := "\033[H\033[2J"
+	s := "\033[H\033[2J\n"
     s += "Choose a container:\n\n"
 
 	for i, container := range menu.containers {
