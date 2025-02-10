@@ -17,18 +17,26 @@ func main() {
 	ctx := utils.GetContext()
 	cli, err := docker.GetCli()
 	if err != nil {
-		logs.Error("Error during docker client initialization: ", err)
+		logs.Error("Error during docker Client initialization: ", err)
 		os.Exit(1)
 	}
 
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
-		switch option {
+		switch os.Args[1] {
+		case "--all", "-a":
+			showAllContainers = true
+			err := con.ContainerMode(ctx, cli, showAllContainers)
+			if err != nil {
+				logs.Error("Error: ", err)
+				os.Exit(1)
+			}
 		case "--images", "--image", "-i":
 			err := img.ImageMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
+				os.Exit(1)
 			}
 			os.Exit(0)
 		case "--build", "-build", "-b":
@@ -37,14 +45,14 @@ func main() {
 				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
-		case "--all", "-a":
-			showAllContainers = true
-			con.ContainerMode(ctx, cli, showAllContainers)
 		case "--help", "-h":
 			printHelpManual()
 			os.Exit(0)
 		case "--version", "-v":
-			printAsciiArt()
+			err := printAsciiArt()
+			if err != nil {
+				logs.Error("Failed to print ASCII art: ", err)
+			}
 			fmt.Println("dk version 0.3.0")
 			os.Exit(0)
 		default:
@@ -58,20 +66,21 @@ func main() {
 }
 
 func printHelpManual() {
+	commands := []string{"dk", "dk [--all | -a]", "dk [--images | -i]", "dk [--build | -b]", "dk [--help | -h]"}
+	descriptions := []string{"Run the program", "Run the program including all containers", "Run image mode", "Build a new image from a Dockerfile in the current directory", "Show this help message"}
+
 	fmt.Println("Usage: dk [options]")
-	fmt.Printf("  %-20s %s\n", "dk", "Run the program")
-	fmt.Printf("  %-20s %s\n", "dk [--all | -a]", "Run the program including all containers")
-	fmt.Printf("  %-20s %s\n", "dk [--images | -i]", "Run image mode")
-	fmt.Printf("  %-20s %s\n", "dk [--build | -b]", "Build a new image from a Dockerfile in the current directory")
-	fmt.Printf("  %-20s %s\n", "dk [--help | -h]", "Show this help message")
+	for i, cmd := range commands {
+		fmt.Printf("  %-20s %s\n", cmd, descriptions[i])
+	}
 }
 
-func printAsciiArt() {
+func printAsciiArt() error {
 	ascii, err := os.ReadFile("./ressources/ascii.txt")
     if err != nil {
-        fmt.Println("Erreur lors de la lecture du fichier:", err)
-        return
+		return err
     }
 
     fmt.Println(string(ascii))
+	return nil
 }

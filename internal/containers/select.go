@@ -58,14 +58,13 @@ func (menu containerChoice) View() string {
 
 	for i, container := range menu.containers {
 		var containerLine string
+		var publicPort uint16
+		var privatePort uint16
 
 		name, _ := strings.CutPrefix(container.Names[0], "/")
 		imageName := container.Image
 		state := container.State
 		created := time.Unix(container.Created, 0).Format("2006-01-02 15:04:05")
-
-		var publicPort uint16
-		var privatePort uint16
 
 		if len(container.Ports) > 0 {
 			publicPort = container.Ports[0].PublicPort
@@ -89,6 +88,6 @@ func selectContainer(containers []Container) (Container, error) {
 	if err != nil {
 		return Container{}, err
 	}
-	selectedContainer := m.(containerChoice).selectedContainer
-	return selectedContainer, nil
+	container := m.(containerChoice).selectedContainer
+	return container, nil
 }

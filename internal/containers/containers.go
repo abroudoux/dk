@@ -18,59 +18,59 @@ import (
 
 type Container = types.Container
 
-func ContainerMode(ctx context.Context, cli *client.Client, showAllContainers bool) {
+func ContainerMode(ctx context.Context, cli *client.Client, showAllContainers bool) error {
 	containers, err := getContainers(ctx, cli, showAllContainers)
 	if err != nil {
-		logs.Error("Error during containers recuperation: ", err)
-		os.Exit(1)
+		return err
 	}
 
 	if len(containers) == 0 {
-		logs.WarnMsg("No containers found")
-		os.Exit(0)
+		logs.WarnMsg("No containers found.")
+		return nil
 	}
 
 	sigChan := make(chan os.Signal, 1)
     signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	go func() {
+	go func() error {
 		containerSelected, err := selectContainer(containers)
 		if err != nil {
-			logs.Error("Error during container selection: ", err)
-			os.Exit(1)
+			return err
 		}
 
 		if containerSelected.ID == "" {
-			logs.InfoMsg("No container selected. Exiting program.")
-			os.Exit(0)
+			return nil
 		}
 
 		action, err := selectAction(containerSelected)
 		if err != nil {
-			logs.Error("Error during action selection: ", err)
-			os.Exit(1)
+			return err
 		}
 
 		err = doContainerAction(ctx, cli, containerSelected, action)
 		if err != nil {
-			logs.Error("Error during action execution: ", err)
-			os.Exit(1)
+			return err
 		}
 
-		os.Exit(0)
+		return nil
     }()
 
 	<-sigChan
     fmt.Println("\nProgram interrupted. Exiting...")
     os.Exit(0)
+
+	return nil
 }
 
 func getContainers(ctx context.Context, cli *client.Client, showAllContainers bool) ([]Container, error) {
-	containers, err := cli.ContainerList(ctx, containertypes.ListOptions{All: showAllContainers})
-	if err != nil {
-		return nil, err
+	options := types.ContainerListOptions{
+		All: showAllContainers,
 	}
-	return containers, err
+	containers, err := cli.ContainerList(ctx, options)
+	if err != nil {
+		return nil, fmt.Errorf("error listing containers: %v", err)
+	}
+	return containers, nil
 }
 
 func doContainerAction(ctx context.Context, cli *client.Client, container Container, action ContainerAction) error {
@@ -93,7 +93,7 @@ func doContainerAction(ctx context.Context, cli *client.Client, container Contai
 func copyContainerId(container Container) error {
 	err := clipboard.WriteAll(container.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("error copying container ID to clipboard: %v", err)
 	}
 	logs.InfoMsg(fmt.Sprintf("Container ID copied to clipboard: %s", container.ID))
 	return nil
@@ -102,7 +102,6 @@ func copyContainerId(container Container) error {
 func getStatus(container Container, ctx context.Context, cli *client.Client) error {
 	status, err := SelectStatus(container)
 	if err != nil {
-		logs.ErrorMsg(fmt.Sprintf("Error choosing status: %v", err))
 		return err
 	}
 
