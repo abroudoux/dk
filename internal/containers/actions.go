@@ -76,7 +76,7 @@ func (menu actionChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (menu actionChoice) View() string {
-	s := "\033[H\033[2J"
+	s := "\033[H\033[2J\n"
 	s += fmt.Sprintf("Container: %s\n\n", utils.RenderContainerName(menu.selectedContainer))
 
 	for i, action := range menu.actions {

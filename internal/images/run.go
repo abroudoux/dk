@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/abroudoux/dk/internal/logs"
+	"github.com/abroudoux/dk/internal/ui"
 	"github.com/abroudoux/dk/internal/utils"
 	"github.com/charmbracelet/huh"
 	containertypes "github.com/docker/docker/api/types/container"
@@ -23,6 +24,9 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
         envs             []string
         removeContainer  bool
     )
+
+    utils.CleanView()
+    fmt.Printf("Image %s \n\n", utils.RenderImageName(image))
 
     form := huh.NewForm(
         huh.NewGroup(
@@ -100,14 +104,14 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
 
     resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
 	if err != nil {
-		return fmt.Errorf("Failed to create container %s: %v", containerName, err)
+		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(containerName), err)
 	}
 
     if err := cli.ContainerStart(ctx, resp.ID, containertypes.StartOptions{}); err != nil {
-        return fmt.Errorf("Failed to start container %s: %v", containerName, err)
+        return fmt.Errorf("Failed to start container %s: %v", ui.RenderElementSelected(containerName), err)
     }
 
-	logs.InfoMsg(fmt.Sprintf("Container %s started", containerName))
+	logs.InfoMsg(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(containerName), utils.RenderImageName(image)))
     return nil
 }
 

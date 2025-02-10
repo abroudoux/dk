@@ -54,7 +54,7 @@ func (menu imageChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (menu imageChoice) View() string {
-    s := "\033[H\033[2J"
+    s := "\033[H\033[2J\n"
     s += "Choose an image:\n\n"
 
     for i, image := range menu.images {
