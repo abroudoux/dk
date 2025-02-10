@@ -94,6 +94,7 @@ Create a branch with a [conventionnal name](https://tilburgsciencehub.com/buildi
 - [ ] `-it` mode
 - [ ] Volumes management
 - [ ] Networks management
+- [ ] Compose mode
 - [x] Create images from source
 - [x] `-env` flag when running a container
 
