@@ -30,7 +30,7 @@ dk --version
 #  | (_| |   <
 #   \__,_|_|\_\
 
-# dk version 0.2.2
+# dk version 0.3.0
 ```
 
 ### Manual
@@ -58,7 +58,7 @@ dk --version
 #  | (_| |   <
 #   \__,_|_|\_\
 
-# dk version 0.2.2
+# dk version 0.3.0
 ```
 
 ## 💻 Usage

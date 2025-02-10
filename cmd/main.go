@@ -45,7 +45,7 @@ func main() {
 			os.Exit(0)
 		case "--version", "-v":
 			printAsciiArt()
-			fmt.Println("dk version 0.2.2")
+			fmt.Println("dk version 0.3.0")
 			os.Exit(0)
 		default:
 			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))
