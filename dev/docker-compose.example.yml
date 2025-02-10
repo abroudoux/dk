@@ -1,0 +1,96 @@
+services:
+  redis:
+    container_name: redis
+    image: redis:5.0.5-alpine
+    restart: always
+    expose:
+      - "6379"
+    tmpfs: /data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    networks:
+      - poll-tier
+      - back-tier
+
+  db:
+    container_name: db
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+    networks:
+      - result-tier
+      - back-tier
+
+  poll:
+    container_name: poll
+    build:
+      context: ./poll
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:80"
+      # - "5002:80"
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - poll-tier
+
+  result:
+    container_name: result
+    build:
+      context: ./result
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5001:80"
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - result-tier
+
+  worker:
+    container_name: worker
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - back-tier
+
+networks:
+  poll-tier:
+  result-tier:
+  back-tier:
+
+volumes:
+  db-data:
