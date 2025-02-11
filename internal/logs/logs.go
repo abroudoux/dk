@@ -21,7 +21,3 @@ func ErrorMsg(msg string) {
 func Error(msg string, err error) {
 	log.Error(msg, err)
 }
-
-func Fatal(msg string, err error) {
-	log.Fatal(msg, err)
-}

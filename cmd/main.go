@@ -18,18 +18,26 @@ func main() {
 	ctx := utils.GetContext()
 	cli, err := docker.GetCli()
 	if err != nil {
-		logs.Error("Error during docker client initialization: ", err)
+		logs.Error("Error during docker Client initialization: ", err)
 		os.Exit(1)
 	}
 
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
-		switch option {
+		switch os.Args[1] {
+		case "--all", "-a":
+			showAllContainers = true
+			err := con.ContainerMode(ctx, cli, showAllContainers)
+			if err != nil {
+				logs.Error("Error: ", err)
+				os.Exit(1)
+			}
 		case "--images", "--image", "-i":
 			err := img.ImageMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
+				os.Exit(1)
 			}
 			os.Exit(0)
 		case "--build", "-build", "-b":
@@ -41,41 +49,23 @@ func main() {
         case "--compose", "-c":
             comp.ComposeMode(ctx, cli)
             os.Exit(0)
-		case "--all", "-a":
-			showAllContainers = true
 		case "--help", "-h":
-			printHelpManual()
+			utils.PrintHelpManual()
 			os.Exit(0)
 		case "--version", "-v":
-			printAsciiArt()
+			err := utils.PrintAsciiArt()
+			if err != nil {
+				logs.Error("Failed to print ASCII art: ", err)
+			}
 			fmt.Println("dk version 0.3.0")
 			os.Exit(0)
 		default:
 			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))
-			printHelpManual()
+			utils.PrintHelpManual()
 			os.Exit(0)
 		}
 	}
 
 	con.ContainerMode(ctx, cli, showAllContainers)
     os.Exit(0)
-}
-
-func printHelpManual() {
-	fmt.Println("Usage: dk [options]")
-	fmt.Printf("  %-20s %s\n", "dk", "Run the program")
-	fmt.Printf("  %-20s %s\n", "dk [--all | -a]", "Run the program including all containers")
-	fmt.Printf("  %-20s %s\n", "dk [--images | -i]", "Run image mode")
-	fmt.Printf("  %-20s %s\n", "dk [--build | -b]", "Build a new image from a Dockerfile in the current directory")
-	fmt.Printf("  %-20s %s\n", "dk [--help | -h]", "Show this help message")
-}
-
-func printAsciiArt() {
-	ascii, err := os.ReadFile("./ressources/ascii.txt")
-    if err != nil {
-        fmt.Println("Erreur lors de la lecture du fichier:", err)
-        return
-    }
-
-    fmt.Println(string(ascii))
 }
