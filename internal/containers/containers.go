@@ -185,4 +185,3 @@ func getLogs(container Container, ctx context.Context, cli *client.Client) error
 
     return nil
 }
-
