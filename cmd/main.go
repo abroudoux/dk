@@ -46,10 +46,10 @@ func main() {
 			}
 			os.Exit(0)
 		case "--help", "-h":
-			printHelpManual()
+			utils.PrintHelpManual()
 			os.Exit(0)
 		case "--version", "-v":
-			err := printAsciiArt()
+			err := utils.PrintAsciiArt()
 			if err != nil {
 				logs.Error("Failed to print ASCII art: ", err)
 			}
@@ -57,30 +57,10 @@ func main() {
 			os.Exit(0)
 		default:
 			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))
-			printHelpManual()
+			utils.PrintHelpManual()
 			os.Exit(0)
 		}
 	}
 
 	con.ContainerMode(ctx, cli, showAllContainers)
-}
-
-func printHelpManual() {
-	commands := []string{"dk", "dk [--all | -a]", "dk [--images | -i]", "dk [--build | -b]", "dk [--help | -h]"}
-	descriptions := []string{"Run the program", "Run the program including all containers", "Run image mode", "Build a new image from a Dockerfile in the current directory", "Show this help message"}
-
-	fmt.Println("Usage: dk [options]")
-	for i, cmd := range commands {
-		fmt.Printf("  %-20s %s\n", cmd, descriptions[i])
-	}
-}
-
-func printAsciiArt() error {
-	ascii, err := os.ReadFile("./ressources/ascii.txt")
-    if err != nil {
-		return err
-    }
-
-    fmt.Println(string(ascii))
-	return nil
 }
