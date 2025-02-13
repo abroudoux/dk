@@ -7,6 +7,7 @@ import (
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/utils"
+	"github.com/charmbracelet/log"
 	imagetypes "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
@@ -74,7 +75,6 @@ func removeImage(image Image, ctx context.Context, cli *client.Client) error {
 		return fmt.Errorf("error removing image %s: %v", image.ID, err)
 	}
 
-	logs.InfoMsg(fmt.Sprintf("Image %s removed", utils.RenderImageName(image)))
+	log.Info(fmt.Sprintf("Image %s removed", utils.RenderImageName(image)))
 	return nil
 }
-

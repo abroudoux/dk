@@ -12,6 +12,7 @@ import (
 
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/log"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
@@ -19,10 +20,10 @@ import (
 
 func buildImage(ctx context.Context, cli *client.Client) error {
 	var (
-		imageName  string
-		filePath   string
+		imageName    string
+		filePath     string
 		buildContext io.Reader
-		options    types.ImageBuildOptions
+		options      types.ImageBuildOptions
 	)
 
 	form := huh.NewForm(
@@ -116,20 +117,20 @@ func buildImage(ctx context.Context, cli *client.Client) error {
 		} else if message.Stream != "" {
 			trimmedStream := strings.TrimSpace(message.Stream)
 			if trimmedStream != "" {
-				logs.InfoMsg(trimmedStream)
+				log.Info(trimmedStream)
 			}
 		} else if message.Status != "" {
-			logs.InfoMsg(message.Status)
+			log.Info(message.Status)
 		}
 	}
 
-	logs.InfoMsg(fmt.Sprintf("Image %s built successfully", imageName))
+	log.Info(fmt.Sprintf("Image %s built successfully", imageName))
 
 	err = PruneImages(ctx, cli)
 	if err != nil {
 		return err
 	}
 
-	logs.InfoMsg("Image built and intermediate images cleaned up")
+	log.Info("Image built and intermediate images cleaned up")
 	return nil
 }

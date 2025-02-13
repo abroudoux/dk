@@ -2,7 +2,7 @@ package logs
 
 import "github.com/charmbracelet/log"
 
-func InfoMsg(msg string) {
+func Info(msg string) {
 	log.Info(msg)
 }
 

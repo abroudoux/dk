@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
 	"github.com/charmbracelet/huh"
@@ -15,8 +16,8 @@ type Container = types.Container
 type Image = types.Image
 
 func GetContext() context.Context {
-    ctx := context.Background()
-    return ctx
+	ctx := context.Background()
+	return ctx
 }
 
 func RenderContainerName(container Container) string {
@@ -26,25 +27,25 @@ func RenderContainerName(container Container) string {
 }
 
 func RenderImageName(image Image) string {
-    if len(image.RepoTags) == 0 {
-        return ui.RenderElementSelected("<none>")
-    } else {
-        imageName := strings.Join(image.RepoTags, "")
-        return ui.RenderElementSelected(imageName)
-    }
+	if len(image.RepoTags) == 0 {
+		return ui.RenderElementSelected("<none>")
+	} else {
+		imageName := strings.Join(image.RepoTags, "")
+		return ui.RenderElementSelected(imageName)
+	}
 }
 
 func FormatSize(size int64) string {
-    const unit = 1024
-    if size < unit {
-        return fmt.Sprintf("%dB", size)
-    }
-    div, exp := int64(unit), 0
-    for n := size / unit; n >= unit; n /= unit {
-        div *= unit
-        exp++
-    }
-    return fmt.Sprintf("%.1f%cB", float64(size)/float64(div), "KMGTPE"[exp])
+	const unit = 1024
+	if size < unit {
+		return fmt.Sprintf("%dB", size)
+	}
+	div, exp := int64(unit), 0
+	for n := size / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f%cB", float64(size)/float64(div), "KMGTPE"[exp])
 }
 
 func GetConfirmation(message string) bool {
@@ -54,7 +55,7 @@ func GetConfirmation(message string) bool {
 }
 
 func CleanView() {
-    println("\033[H\033[2J")
+	println("\033[H\033[2J")
 }
 
 func PrintHelpManual() {
@@ -69,10 +70,15 @@ func PrintHelpManual() {
 
 func PrintAsciiArt() error {
 	ascii, err := os.ReadFile("./ressources/ascii.txt")
-    if err != nil {
+	if err != nil {
 		return err
-    }
+	}
 
-    fmt.Println(string(ascii))
+	fmt.Println(string(ascii))
 	return nil
+}
+
+func PrintErrorAndExit(err error) {
+	logs.Error("Error", err)
+	os.Exit(1)
 }

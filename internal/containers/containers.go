@@ -12,6 +12,7 @@ import (
 	"github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/utils"
 	"github.com/atotto/clipboard"
+	"github.com/charmbracelet/log"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 )
@@ -30,7 +31,7 @@ func ContainerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 	}
 
 	sigChan := make(chan os.Signal, 1)
-    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() error {
 		containerSelected, err := selectContainer(containers)
@@ -53,11 +54,11 @@ func ContainerMode(ctx context.Context, cli *client.Client, showAllContainers bo
 		}
 
 		return nil
-    }()
+	}()
 
 	<-sigChan
-    fmt.Println("\nProgram interrupted. Exiting...")
-    os.Exit(0)
+	fmt.Println("\nProgram interrupted. Exiting...")
+	os.Exit(0)
 
 	return nil
 }
@@ -95,7 +96,7 @@ func copyContainerId(container Container) error {
 	if err != nil {
 		return fmt.Errorf("error copying container ID to clipboard: %v", err)
 	}
-	logs.InfoMsg(fmt.Sprintf("Container ID copied to clipboard: %s", container.ID))
+	log.Info(fmt.Sprintf("Container ID copied to clipboard: %s", container.ID))
 	return nil
 }
 
@@ -124,7 +125,7 @@ func pauseContainer(container Container, ctx context.Context, cli *client.Client
 	if err != nil {
 		return fmt.Errorf("error pausing container %s: %v", container.ID, err)
 	}
-	logs.InfoMsg(fmt.Sprintf("Container %s paused successfully", container.ID))
+	log.Info(fmt.Sprintf("Container %s paused successfully", container.ID))
 	return nil
 }
 
@@ -134,7 +135,7 @@ func restartContainer(container Container, ctx context.Context, cli *client.Clie
 	if err != nil {
 		return fmt.Errorf("error restarting container %s: %v", container.ID, err)
 	}
-	logs.InfoMsg(fmt.Sprintf("Container %s restarted successfully", container.ID))
+	log.Info(fmt.Sprintf("Container %s restarted successfully", container.ID))
 	return nil
 }
 
@@ -144,44 +145,44 @@ func stopContainer(container Container, ctx context.Context, cli *client.Client)
 	if err != nil {
 		return fmt.Errorf("error stopping container %s: %v", container.ID, err)
 	}
-	logs.InfoMsg(fmt.Sprintf("Container %s stopped successfully", container.ID))
+	log.Info(fmt.Sprintf("Container %s stopped successfully", container.ID))
 	return nil
 }
 
 func deleteContainer(container Container, ctx context.Context, cli *client.Client) error {
 	removeOptions := containertypes.RemoveOptions{
-        Force: true,
-        RemoveVolumes: true,
-    }
+		Force:         true,
+		RemoveVolumes: true,
+	}
 	if err := cli.ContainerRemove(ctx, container.ID, removeOptions); err != nil {
-        return fmt.Errorf("error removing container %s: %v", container.ID, err)
-    }
+		return fmt.Errorf("error removing container %s: %v", container.ID, err)
+	}
 
-	logs.InfoMsg(fmt.Sprintf("Container %s removed successfully", utils.RenderContainerName(container)))
-    return nil
+	log.Info(fmt.Sprintf("Container %s removed successfully", utils.RenderContainerName(container)))
+	return nil
 }
 
 func getLogs(container Container, ctx context.Context, cli *client.Client) error {
-    logOptions := containertypes.LogsOptions{
-        ShowStdout: true,
-        ShowStderr: true,
-        Follow:     true,
-        Timestamps: true,
-        Tail:       "50",
-    }
+	logOptions := containertypes.LogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Timestamps: true,
+		Tail:       "50",
+	}
 
-    logsReader, err := cli.ContainerLogs(ctx, container.ID, logOptions)
-    if err != nil {
-        return fmt.Errorf("error getting logs for container %s: %v", container.ID, err)
-    }
-    defer logsReader.Close()
+	logsReader, err := cli.ContainerLogs(ctx, container.ID, logOptions)
+	if err != nil {
+		return fmt.Errorf("error getting logs for container %s: %v", container.ID, err)
+	}
+	defer logsReader.Close()
 
-    logs.InfoMsg(fmt.Sprintf("Logs for container %s", utils.RenderContainerName(container)))
+	log.Info(fmt.Sprintf("Logs for container %s", utils.RenderContainerName(container)))
 
-    _, err = io.Copy(os.Stdout, logsReader)
-    if err != nil {
-        return fmt.Errorf("error copying logs for container %s: %v", container.ID, err)
-    }
+	_, err = io.Copy(os.Stdout, logsReader)
+	if err != nil {
+		return fmt.Errorf("error copying logs for container %s: %v", container.ID, err)
+	}
 
-    return nil
+	return nil
 }

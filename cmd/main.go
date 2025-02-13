@@ -18,8 +18,7 @@ func main() {
 	ctx := utils.GetContext()
 	cli, err := docker.GetCli()
 	if err != nil {
-		logs.Error("Error during docker Client initialization: ", err)
-		os.Exit(1)
+		utils.PrintErrorAndExit(err)
 	}
 
 	if len(os.Args) > 1 {
@@ -30,20 +29,18 @@ func main() {
 			showAllContainers = true
 			err := con.ContainerMode(ctx, cli, showAllContainers)
 			if err != nil {
-				logs.Error("Error: ", err)
-				os.Exit(1)
+				utils.PrintErrorAndExit(err)
 			}
 		case "--images", "--image", "images", "image", "-i":
 			err := img.ImageMode(ctx, cli)
 			if err != nil {
-				logs.Error("Error: ", err)
-				os.Exit(1)
+				utils.PrintErrorAndExit(err)
 			}
 			os.Exit(0)
 		case "--build", "-build", "build", "-b":
 			err := img.BuildMode(ctx, cli)
 			if err != nil {
-				logs.Error("Error: ", err)
+				utils.PrintErrorAndExit(err)
 			}
 			os.Exit(0)
 		case "--volumes", "--volume", "volumes", "volume", "-V":
@@ -58,7 +55,7 @@ func main() {
 		case "--version", "-v":
 			err := utils.PrintAsciiArt()
 			if err != nil {
-				logs.Error("Failed to print ASCII art: ", err)
+				utils.PrintErrorAndExit(err)
 			}
 			fmt.Println("dk version 0.3.0")
 			os.Exit(0)
