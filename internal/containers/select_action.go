@@ -26,7 +26,7 @@ func (a containerAction) String() string {
 	}[a]
 }
 
-func initialActionModel(container Container) actionChoice {
+func initialActionModel(container container) actionChoice {
 	actions := []containerAction{
 		containerActionExit,
 		containerActionCopyContainerID,
@@ -88,7 +88,7 @@ func (menu actionChoice) View() string {
 	return s
 }
 
-func selectAction(container Container) (containerAction, error) {
+func selectAction(container container) (containerAction, error) {
 	p := tea.NewProgram(initialActionModel(container))
 	m, err := p.Run()
 	if err != nil {

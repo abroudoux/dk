@@ -1,10 +1,10 @@
 package containers
 
 import (
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 )
 
-func doContainerAction(ctx types.Context, cli types.Client, container Container, action containerAction) error {
+func doContainerAction(ctx t.Context, cli t.Client, container container, action containerAction) error {
 	switch action {
 	case containerActionExit:
 		return nil

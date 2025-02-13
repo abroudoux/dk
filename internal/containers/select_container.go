@@ -9,11 +9,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func initialContainerModel(containers []Container) containerChoice {
+func initialContainerModel(containers []container) containerChoice {
 	return containerChoice{
 		containers:        containers,
 		cursor:            len(containers) - 1,
-		containerSelected: Container{},
+		containerSelected: container{},
 	}
 }
 
@@ -26,7 +26,7 @@ func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
-			menu.containerSelected = Container{}
+			menu.containerSelected = container{}
 			return menu, tea.Quit
 		case "up":
 			menu.cursor--
@@ -77,11 +77,11 @@ func (menu containerChoice) View() string {
 	return s
 }
 
-func selectContainer(containers []Container) (Container, error) {
+func selectContainer(containers []container) (container, error) {
 	p := tea.NewProgram(initialContainerModel(containers))
 	m, err := p.Run()
 	if err != nil {
-		return Container{}, err
+		return container{}, err
 	}
 	container := m.(containerChoice).containerSelected
 	return container, nil

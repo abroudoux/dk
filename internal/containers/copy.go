@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func copyContainerId(container Container) error {
+func copyContainerId(container container) error {
 	if clipboard.Unsupported {
 		return fmt.Errorf("clipboard is unsupported on this platform.")
 	}

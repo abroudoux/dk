@@ -3,10 +3,10 @@ package containers
 import (
 	"fmt"
 
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 )
 
-func doContainerStatusAction(container Container, status containerStatus, ctx types.Context, cli types.Client) error {
+func doContainerStatusAction(container container, status containerStatus, ctx t.Context, cli t.Client) error {
 	switch status {
 	case containerStatusExit:
 		return nil

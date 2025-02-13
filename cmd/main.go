@@ -16,7 +16,7 @@ func main() {
 	var showAllContainers bool = false
 
 	ctx := utils.GetContext()
-	cli, err := docker.GetCli()
+	cli, err := docker.GetClient()
 	if err != nil {
 		utils.PrintErrorAndExit(err)
 	}

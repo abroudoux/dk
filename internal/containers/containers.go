@@ -4,11 +4,11 @@ import (
 	"os"
 
 	"github.com/abroudoux/dk/internal/logs"
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/charmbracelet/log"
 )
 
-func ContainerMode(ctx types.Context, cli types.Client, showAllContainers bool) error {
+func ContainerMode(ctx t.Context, cli t.Client, showAllContainers bool) error {
 	containers, err := getContainers(ctx, cli, showAllContainers)
 	if err != nil {
 		return err

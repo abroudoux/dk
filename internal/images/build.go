@@ -1,7 +1,6 @@
 package images
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,19 +10,18 @@ import (
 	"strings"
 
 	"github.com/abroudoux/dk/internal/logs"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 )
 
-func buildImage(ctx context.Context, cli *client.Client) error {
+func buildImage(ctx t.Context, cli t.Client) error {
 	var (
 		imageName    string
 		filePath     string
 		buildContext io.Reader
-		options      types.ImageBuildOptions
+		options      imageBuildOptions
 	)
 
 	form := huh.NewForm(
@@ -66,7 +64,7 @@ func buildImage(ctx context.Context, cli *client.Client) error {
 			return fmt.Errorf("failed to create build context: %v", err)
 		}
 
-		options = types.ImageBuildOptions{
+		options = imageBuildOptions{
 			Tags:        []string{imageName},
 			Dockerfile:  filepath.Base(filePathAbs),
 			Remove:      true,
@@ -83,7 +81,7 @@ func buildImage(ctx context.Context, cli *client.Client) error {
 			return fmt.Errorf("failed to create build context: %v", err)
 		}
 
-		options = types.ImageBuildOptions{
+		options = imageBuildOptions{
 			Tags:        []string{imageName},
 			Dockerfile:  "Dockerfile",
 			Remove:      true,
@@ -126,7 +124,7 @@ func buildImage(ctx context.Context, cli *client.Client) error {
 
 	log.Info(fmt.Sprintf("Image %s built successfully", imageName))
 
-	err = PruneImages(ctx, cli)
+	err = prune(ctx, cli)
 	if err != nil {
 		return err
 	}

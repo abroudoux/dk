@@ -5,13 +5,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/utils"
 	"github.com/charmbracelet/log"
 	containerTypes "github.com/docker/docker/api/types/container"
 )
 
-func getLogs(container Container, ctx types.Context, cli types.Client) error {
+func getLogs(container container, ctx t.Context, cli t.Client) error {
 	logOptions := containerTypes.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,

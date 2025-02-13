@@ -1,19 +1,19 @@
 package images
 
 import (
-	"context"
 	"fmt"
 
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/charmbracelet/log"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
 )
 
-func PruneImages(ctx context.Context, cli *client.Client) error {
+func prune(ctx t.Context, cli t.Client) error {
 	_, err := cli.ImagesPrune(ctx, filters.NewArgs())
 	if err != nil {
 		return fmt.Errorf("failed to prune images: %v", err)
 	}
+
 	log.Info("Cleaned up dangling images")
 	return nil
 }

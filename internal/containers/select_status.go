@@ -24,7 +24,7 @@ func (s containerStatus) String() string {
 	}[s]
 }
 
-func initialStatusModel(container Container) statusChoice {
+func initialStatusModel(container container) statusChoice {
 	statuses := []containerStatus{
 		containerStatusExit,
 		containerStatusPause,
@@ -83,7 +83,7 @@ func (menu statusChoice) View() string {
 	return s
 }
 
-func selectStatus(container Container) (containerStatus, error) {
+func selectStatus(container container) (containerStatus, error) {
 	p := tea.NewProgram(initialStatusModel(container))
 	m, err := p.Run()
 	if err != nil {

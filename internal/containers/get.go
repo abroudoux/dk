@@ -3,11 +3,11 @@ package containers
 import (
 	"fmt"
 
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 )
 
-func getContainers(ctx types.Context, cli types.Client, showAllContainers bool) ([]Container, error) {
-	options := types.ContainerListOptions{
+func getContainers(ctx t.Context, cli t.Client, showAllContainers bool) ([]container, error) {
+	options := containerListOptions{
 		All: showAllContainers,
 	}
 	containers, err := cli.ContainerList(ctx, options)

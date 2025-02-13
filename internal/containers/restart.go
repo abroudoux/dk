@@ -3,12 +3,12 @@ package containers
 import (
 	"fmt"
 
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/charmbracelet/log"
 )
 
-func restartContainer(container Container, ctx types.Context, cli types.Client) error {
-	restartOptions := StopOptions{}
+func restartContainer(container container, ctx t.Context, cli t.Client) error {
+	restartOptions := stopOptions{}
 	err := cli.ContainerRestart(ctx, container.ID, restartOptions)
 	if err != nil {
 		return fmt.Errorf("error restarting container %s: %v", container.ID, err)

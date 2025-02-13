@@ -3,14 +3,13 @@ package containers
 import (
 	"fmt"
 
-	"github.com/abroudoux/dk/internal/types"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/utils"
 	"github.com/charmbracelet/log"
-	containerTypes "github.com/docker/docker/api/types/container"
 )
 
-func deleteContainer(container Container, ctx types.Context, cli types.Client) error {
-	removeOptions := containerTypes.RemoveOptions{
+func deleteContainer(container container, ctx t.Context, cli t.Client) error {
+	removeOptions := containerRemoveOptions{
 		Force:         true,
 		RemoveVolumes: true,
 	}

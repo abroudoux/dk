@@ -1,23 +1,22 @@
 package images
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/logs"
+	t "github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
 	"github.com/abroudoux/dk/internal/utils"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/log"
-	containertypes "github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 )
 
-func runImage(image Image, ctx context.Context, cli *client.Client) error {
+func runImage(image image, ctx t.Context, cli t.Client) error {
 	var (
 		containerName   string
 		ports           string
@@ -63,13 +62,13 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
 		getEnvs(&envs)
 	}
 
-	config := &containertypes.Config{
+	config := &containers.ContainerConfig{
 		Image: image.ID,
 		Tty:   true,
 		Env:   envs,
 	}
 
-	hostConfig := &containertypes.HostConfig{
+	hostConfig := &containers.ContainerHostConfig{
 		AutoRemove: removeContainer,
 	}
 
@@ -108,7 +107,7 @@ func runImage(image Image, ctx context.Context, cli *client.Client) error {
 		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(containerName), err)
 	}
 
-	if err := cli.ContainerStart(ctx, resp.ID, containertypes.StartOptions{}); err != nil {
+	if err := cli.ContainerStart(ctx, resp.ID, containers.ContainerStartOptions{}); err != nil {
 		return fmt.Errorf("Failed to start container %s: %v", ui.RenderElementSelected(containerName), err)
 	}
 
@@ -132,41 +131,4 @@ func checkPortInput(port string) bool {
 	}
 
 	return true
-}
-
-func getEnv() string {
-	var key string
-	var value string
-	huh.NewInput().Title("Key").Prompt("? ").Value(&key).Run()
-	huh.NewInput().Title("Value").Prompt("? ").Value(&value).Run()
-	return key + "=" + value
-}
-
-func isEnvAlreadySaved(newEnv string, envs *[]string) bool {
-	for _, env := range *envs {
-		if env == newEnv {
-			return true
-		}
-	}
-	return false
-}
-
-func getEnvs(envs *[]string) {
-	newEnv := getEnv()
-	envAlreadySaved := isEnvAlreadySaved(newEnv, envs)
-	if envAlreadySaved {
-		logs.WarnMsg("Environment variable already saved")
-		getEnvs(envs)
-		return
-	}
-
-	*envs = append(*envs, newEnv)
-	log.Info(fmt.Sprintf("Environment variable saved: %s", newEnv))
-
-	addNewEnv := utils.GetConfirmation("Do you want to add another environment variable?")
-	if addNewEnv {
-		getEnvs(envs)
-		return
-	}
-	return
 }
