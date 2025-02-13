@@ -9,6 +9,7 @@ import (
 	img "github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/utils"
+	vol "github.com/abroudoux/dk/internal/volumes"
 )
 
 func main() {
@@ -24,23 +25,29 @@ func main() {
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
-		switch os.Args[1] {
-		case "--all", "-a":
+		switch option {
+		case "--all", "-a", "all":
 			showAllContainers = true
 			err := con.ContainerMode(ctx, cli, showAllContainers)
 			if err != nil {
 				logs.Error("Error: ", err)
 				os.Exit(1)
 			}
-		case "--images", "--image", "-i":
+		case "--images", "--image", "images", "image", "-i":
 			err := img.ImageMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
 				os.Exit(1)
 			}
 			os.Exit(0)
-		case "--build", "-build", "-b":
+		case "--build", "-build", "build", "-b":
 			err := img.BuildMode(ctx, cli)
+			if err != nil {
+				logs.Error("Error: ", err)
+			}
+			os.Exit(0)
+		case "--volumes", "--volume", "volumes", "volume", "-V":
+			err := vol.VolumeMode(ctx, cli)
 			if err != nil {
 				logs.Error("Error: ", err)
 			}
