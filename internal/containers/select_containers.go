@@ -9,17 +9,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type containerChoice struct {
-	containers []Container
-	cursor int
-	selectedContainer Container
-}
-
 func initialContainerModel(containers []Container) containerChoice {
 	return containerChoice{
-		containers: containers,
-		cursor: len(containers) - 1,
-		selectedContainer: Container{},
+		containers:        containers,
+		cursor:            len(containers) - 1,
+		containerSelected: Container{},
 	}
 }
 
@@ -32,6 +26,7 @@ func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
+			menu.containerSelected = Container{}
 			return menu, tea.Quit
 		case "up":
 			menu.cursor--
@@ -44,7 +39,7 @@ func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				menu.cursor = 0
 			}
 		case "enter":
-			menu.selectedContainer = menu.containers[menu.cursor]
+			menu.containerSelected = menu.containers[menu.cursor]
 			return menu, tea.Quit
 		}
 	}
@@ -54,7 +49,7 @@ func (menu containerChoice) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (menu containerChoice) View() string {
 	s := "\033[H\033[2J\n"
-    s += "Choose a container:\n\n"
+	s += "Choose a container:\n\n"
 
 	for i, container := range menu.containers {
 		var containerLine string
@@ -74,12 +69,12 @@ func (menu containerChoice) View() string {
 			containerLine = fmt.Sprintf("%s => %s [%s - %s]", name, imageName, state, created)
 		}
 
-        cursor := " "
+		cursor := " "
 		cursor = ui.RenderCursor(menu.cursor == i)
 		s += fmt.Sprintf("%s %s\n", cursor, ui.RenderLineSelected(containerLine, menu.cursor == i))
-    }
+	}
 
-    return s
+	return s
 }
 
 func selectContainer(containers []Container) (Container, error) {
@@ -88,6 +83,6 @@ func selectContainer(containers []Container) (Container, error) {
 	if err != nil {
 		return Container{}, err
 	}
-	container := m.(containerChoice).selectedContainer
+	container := m.(containerChoice).containerSelected
 	return container, nil
 }

@@ -27,10 +27,6 @@ func main() {
 		switch option {
 		case "--all", "-a", "all":
 			showAllContainers = true
-			err := con.ContainerMode(ctx, cli, showAllContainers)
-			if err != nil {
-				utils.PrintErrorAndExit(err)
-			}
 		case "--images", "--image", "images", "image", "-i":
 			err := img.ImageMode(ctx, cli)
 			if err != nil {
@@ -67,4 +63,5 @@ func main() {
 	}
 
 	con.ContainerMode(ctx, cli, showAllContainers)
+	os.Exit(0)
 }
