@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	con "github.com/abroudoux/dk/internal/containers"
+	"github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/docker"
-	img "github.com/abroudoux/dk/internal/images"
+	"github.com/abroudoux/dk/internal/history"
+	"github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/utils"
 )
@@ -27,13 +28,19 @@ func main() {
 		case "--all", "-a", "all":
 			showAllContainers = true
 		case "--images", "--image", "images", "image", "-i":
-			err := img.ImageMode(ctx, cli)
+			err := images.ImageMode(ctx, cli)
 			if err != nil {
 				utils.PrintErrorAndExit(err)
 			}
 			os.Exit(0)
 		case "--build", "-build", "build", "-b":
-			err := img.BuildMode(ctx, cli)
+			err := images.BuildMode(ctx, cli)
+			if err != nil {
+				utils.PrintErrorAndExit(err)
+			}
+			os.Exit(0)
+		case "--history", "-history", "history", "-H":
+			err := history.HistoryMode(ctx, cli)
 			if err != nil {
 				utils.PrintErrorAndExit(err)
 			}
@@ -52,6 +59,6 @@ func main() {
 		}
 	}
 
-	con.ContainerMode(ctx, cli, showAllContainers)
+	containers.ContainerMode(ctx, cli, showAllContainers)
 	os.Exit(0)
 }
