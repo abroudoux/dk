@@ -42,11 +42,8 @@ func main() {
 			utils.PrintHelpManual()
 			os.Exit(0)
 		case "--version", "-v":
-			err := utils.PrintAsciiArt()
-			if err != nil {
-				utils.PrintErrorAndExit(err)
-			}
-			fmt.Println("dk version 0.3.0")
+			utils.PrintAsciiArt()
+			utils.PrintVersion()
 			os.Exit(0)
 		default:
 			logs.WarnMsg(fmt.Sprintf("Unknown option: %s", option))

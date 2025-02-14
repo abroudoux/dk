@@ -68,17 +68,19 @@ func PrintHelpManual() {
 	}
 }
 
-func PrintAsciiArt() error {
-	ascii, err := os.ReadFile("./ressources/ascii.txt")
-	if err != nil {
-		return err
+func PrintAsciiArt() {
+	ascii, _ := os.ReadFile("./ressources/ascii.txt")
+	if ascii == nil {
+		return
 	}
-
 	fmt.Println(string(ascii))
-	return nil
 }
 
 func PrintErrorAndExit(err error) {
 	logs.Error("Error", err)
 	os.Exit(1)
+}
+
+func PrintVersion() {
+	fmt.Println("dk version 0.3.1")
 }

@@ -29,8 +29,7 @@ dk --version
 #   / _` | |/ /
 #  | (_| |   <
 #   \__,_|_|\_\
-
-# dk version 0.3.0
+#
 ```
 
 ### Manual
@@ -57,8 +56,7 @@ dk --version
 #   / _` | |/ /
 #  | (_| |   <
 #   \__,_|_|\_\
-
-# dk version 0.3.0
+#
 ```
 
 ## 💻 Usage
@@ -95,6 +93,7 @@ Create a branch with a [conventionnal name](https://tilburgsciencehub.com/buildi
 - [ ] Volumes management
 - [ ] Networks management
 - [ ] Compose mode
+- [ ] History of commands
 - [x] Create images from source
 - [x] `-env` flag when running a container
 
