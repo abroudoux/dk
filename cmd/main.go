@@ -9,7 +9,6 @@ import (
 	img "github.com/abroudoux/dk/internal/images"
 	"github.com/abroudoux/dk/internal/logs"
 	"github.com/abroudoux/dk/internal/utils"
-	vol "github.com/abroudoux/dk/internal/volumes"
 )
 
 func main() {
@@ -37,12 +36,6 @@ func main() {
 			err := img.BuildMode(ctx, cli)
 			if err != nil {
 				utils.PrintErrorAndExit(err)
-			}
-			os.Exit(0)
-		case "--volumes", "--volume", "volumes", "volume", "-V":
-			err := vol.VolumeMode(ctx, cli)
-			if err != nil {
-				logs.Error("Error: ", err)
 			}
 			os.Exit(0)
 		case "--help", "-h":
