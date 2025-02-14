@@ -8,8 +8,8 @@ import (
 )
 
 func InitHistory() error {
-	if !fileAlreadyExists() {
-		err := createHistoryFile()
+	if !fileAlreadyExists(historyFilePath) {
+		err := createHistoryFile(historyFilePath)
 		if err != nil {
 			return err
 		}
@@ -17,20 +17,20 @@ func InitHistory() error {
 	return nil
 }
 
-func fileAlreadyExists() bool {
-	if _, err := os.Stat(historyFilePath); errors.Is(err, os.ErrNotExist) {
+func fileAlreadyExists(filePath string) bool {
+	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
 		return false
 	}
 
 	return true
 }
 
-func createHistoryFile() error {
-	_, err := os.Create(historyFilePath)
+func createHistoryFile(filePath string) error {
+	_, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
 
-	log.Info("History file created at:", historyFilePath)
+	log.Info("History file created at:", filePath)
 	return nil
 }

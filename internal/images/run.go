@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/abroudoux/dk/internal/containers"
+	"github.com/abroudoux/dk/internal/history"
 	"github.com/abroudoux/dk/internal/logs"
 	t "github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
@@ -112,6 +113,12 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 	}
 
 	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(containerName), utils.RenderImageName(image)))
+
+	cmd := history.NewImageCommand(history.CommandImageTypeRun, image)
+
+	log.Info("New command added to history")
+	println("Image Id:", cmd.Image.ID)
+
 	return nil
 }
 
