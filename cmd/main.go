@@ -21,6 +21,8 @@ func main() {
 		utils.PrintErrorAndExit(err)
 	}
 
+	history.InitHistory()
+
 	if len(os.Args) > 1 {
 		option := os.Args[1]
 
@@ -39,7 +41,7 @@ func main() {
 				utils.PrintErrorAndExit(err)
 			}
 			os.Exit(0)
-		case "--history", "-history", "history", "-H":
+		case "--history", "-history", "history":
 			err := history.HistoryMode(ctx, cli)
 			if err != nil {
 				utils.PrintErrorAndExit(err)
