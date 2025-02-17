@@ -17,13 +17,7 @@ import (
 )
 
 func runImage(image image, ctx t.Context, cli t.Client) error {
-	var (
-		containerName   string
-		ports           string
-		env             bool
-		envs            []string
-		removeContainer bool
-	)
+	var cmd commandRun
 
 	utils.CleanView()
 	fmt.Printf("Image %s \n\n", utils.RenderImageName(image))
@@ -32,24 +26,24 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Container name (--name) (Optionnal)").
-				Value(&containerName),
+				Value(&cmd.containerName),
 
 			huh.NewInput().
 				Title("Port mapping (-p) (Leave empty to use exposed port)").
 				Placeholder("host:container").
-				Value(&ports),
+				Value(&cmd.ports),
 
 			huh.NewConfirm().
 				Title("Do you want to add environment variables?").
 				Negative("No").
 				Affirmative("Yes").
-				Value(&env),
+				Value(&cmd.env),
 
 			huh.NewConfirm().
 				Title("Do you want to remove the container after stopping it?").
 				Negative("No").
 				Affirmative("Yes").
-				Value(&removeContainer),
+				Value(&cmd.removeContainer),
 		),
 	)
 
@@ -58,21 +52,21 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 		return fmt.Errorf("Failed to run form: %v", err)
 	}
 
-	if env {
-		getEnvs(&envs)
+	if cmd.env {
+		getEnvs(&cmd.envs)
 	}
 
 	config := &containers.ContainerConfig{
 		Image: image.ID,
 		Tty:   true,
-		Env:   envs,
+		Env:   cmd.envs,
 	}
 
 	hostConfig := &containers.ContainerHostConfig{
-		AutoRemove: removeContainer,
+		AutoRemove: cmd.removeContainer,
 	}
 
-	if ports == "" {
+	if cmd.ports == "" {
 		imageInspect, _, err := cli.ImageInspectWithRaw(ctx, image.ID)
 		if err != nil {
 			return fmt.Errorf("Failed to inspect image: %v", err)
@@ -86,32 +80,32 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 
 		if exposedPort != "" {
 			portNumber := strings.Split(exposedPort, "/")[0]
-			ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
+			cmd.ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
 		} else {
 			logs.WarnMsg("No exposed ports found in the image")
 		}
 	}
 
-	if !checkPortInput(ports) {
+	if !checkPortInput(cmd.ports) {
 		return fmt.Errorf("Invalid port mapping")
 	}
 
 	hostConfig.PortBindings = nat.PortMap{
-		nat.Port(strings.Split(ports, ":")[1] + "/tcp"): []nat.PortBinding{
-			{HostIP: "0.0.0.0", HostPort: strings.Split(ports, ":")[0]},
+		nat.Port(strings.Split(cmd.ports, ":")[1] + "/tcp"): []nat.PortBinding{
+			{HostIP: "0.0.0.0", HostPort: strings.Split(cmd.ports, ":")[0]},
 		},
 	}
 
-	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
+	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, cmd.containerName)
 	if err != nil {
-		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(containerName), err)
+		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(cmd.containerName), err)
 	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, containers.ContainerStartOptions{}); err != nil {
-		return fmt.Errorf("Failed to start container %s: %v", ui.RenderElementSelected(containerName), err)
+		return fmt.Errorf("Failed to start container %s: %v", ui.RenderElementSelected(cmd.containerName), err)
 	}
 
-	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(containerName), utils.RenderImageName(image)))
+	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(cmd.containerName), utils.RenderImageName(image)))
 	return nil
 }
 
