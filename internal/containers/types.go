@@ -36,3 +36,4 @@ type containerListOptions = ct.ListOptions
 type ContainerStartOptions = ct.StartOptions
 type ContainerConfig = ct.Config
 type ContainerHostConfig = ct.HostConfig
+type ContainerNetworkMode = ct.NetworkMode

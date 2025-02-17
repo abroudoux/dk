@@ -2,11 +2,9 @@ package images
 
 import (
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 
-	"github.com/abroudoux/dk/internal/containers"
+	containers "github.com/abroudoux/dk/internal/containers"
 	"github.com/abroudoux/dk/internal/logs"
 	t "github.com/abroudoux/dk/internal/types"
 	"github.com/abroudoux/dk/internal/ui"
@@ -32,6 +30,11 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 				Title("Port mapping (-p) (Leave empty to use exposed port)").
 				Placeholder("host:container").
 				Value(&cmd.ports),
+
+			huh.NewInput().
+				Title("Network (--network) (Leave empty if you don't want to specifies it)").
+				Placeholder("Network name").
+				Value(&cmd.network),
 
 			huh.NewConfirm().
 				Title("Do you want to add environment variables?").
@@ -96,6 +99,10 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 		},
 	}
 
+	if cmd.network != "" {
+		hostConfig.NetworkMode = containers.ContainerNetworkMode(cmd.network)
+	}
+
 	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, cmd.containerName)
 	if err != nil {
 		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(cmd.containerName), err)
@@ -107,22 +114,4 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 
 	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(cmd.containerName), utils.RenderImageName(image)))
 	return nil
-}
-
-func checkPortInput(port string) bool {
-	portRegex := regexp.MustCompile(`^(\d+):(\d+)$`)
-	if !portRegex.MatchString(port) {
-		logs.ErrorMsg("Invalid port mapping. Please use the following format: host:container")
-		return false
-	}
-
-	portParts := strings.Split(port, ":")
-	_, errHost := strconv.Atoi(portParts[0])
-	_, errContainer := strconv.Atoi(portParts[1])
-	if errHost != nil || errContainer != nil {
-		logs.ErrorMsg("Invalid port numbers. Please use integers for both host and container ports")
-		return false
-	}
-
-	return true
 }

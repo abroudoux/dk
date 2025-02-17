@@ -14,6 +14,7 @@ type commandRun struct {
 	env             bool
 	envs            []string
 	removeContainer bool
+	network         string
 }
 
 type imageAction int
