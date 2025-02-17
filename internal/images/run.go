@@ -14,10 +14,7 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-func runImage(image image, ctx t.Context, cli t.Client) error {
-	var cmd commandRun
-
-	utils.CleanView()
+func runForm(cmd *commandRun, image image) error {
 	fmt.Printf("Image %s \n\n", utils.RenderImageName(image))
 
 	form := huh.NewForm(
@@ -52,8 +49,17 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 
 	err := form.Run()
 	if err != nil {
-		return fmt.Errorf("Failed to run form: %v", err)
+		return err
 	}
+
+	return nil
+}
+
+func runImage(image image, ctx t.Context, cli t.Client) error {
+	var cmd commandRun
+
+	utils.CleanView()
+	err := runForm(&cmd, image)
 
 	if cmd.env {
 		getEnvs(&cmd.envs)
@@ -70,27 +76,7 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 	}
 
 	if cmd.ports == "" {
-		imageInspect, _, err := cli.ImageInspectWithRaw(ctx, image.ID)
-		if err != nil {
-			return fmt.Errorf("Failed to inspect image: %v", err)
-		}
-
-		var exposedPort string
-		for port := range imageInspect.Config.ExposedPorts {
-			exposedPort = string(port)
-			break
-		}
-
-		if exposedPort != "" {
-			portNumber := strings.Split(exposedPort, "/")[0]
-			cmd.ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
-		} else {
-			logs.WarnMsg("No exposed ports found in the image")
-		}
-	}
-
-	if !checkPortInput(cmd.ports) {
-		return fmt.Errorf("Invalid port mapping")
+		err = getHostPort(image, &cmd.ports, ctx, cli)
 	}
 
 	hostConfig.PortBindings = nat.PortMap{
@@ -113,5 +99,70 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 	}
 
 	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(cmd.containerName), utils.RenderImageName(image)))
+	return nil
+}
+
+func getEnv() string {
+	var key string
+	var value string
+	huh.NewInput().Title("Key").Prompt("? ").Value(&key).Run()
+	huh.NewInput().Title("Value").Prompt("? ").Value(&value).Run()
+
+	if key == "" || value == "" {
+		logs.WarnMsg("Key or value can't be empty")
+		return getEnv()
+	}
+
+	return key + "=" + value
+}
+
+func isEnvAlreadySaved(newEnv string, envs *[]string) bool {
+	for _, env := range *envs {
+		if env == newEnv {
+			return true
+		}
+	}
+	return false
+}
+
+func getEnvs(envs *[]string) {
+	newEnv := getEnv()
+	envAlreadySaved := isEnvAlreadySaved(newEnv, envs)
+	if envAlreadySaved {
+		logs.WarnMsg("Environment variable already saved")
+		getEnvs(envs)
+		return
+	}
+
+	*envs = append(*envs, newEnv)
+	log.Info(fmt.Sprintf("Environment variable saved: %s", newEnv))
+
+	addNewEnv := utils.GetConfirmation("Do you want to add another environment variable?")
+	if addNewEnv {
+		getEnvs(envs)
+		return
+	}
+	return
+}
+
+func getHostPort(image image, ports *string, ctx t.Context, cli t.Client) error {
+	imageInspected, _, err := cli.ImageInspectWithRaw(ctx, image.ID)
+	if err != nil {
+		return err
+	}
+
+	var exposedPort string
+	for port := range imageInspected.Config.ExposedPorts {
+		exposedPort = string(port)
+		break
+	}
+
+	if exposedPort == "" {
+		logs.WarnMsg("No exposed ports found in the image")
+		return nil
+	}
+
+	portNumber := strings.Split(exposedPort, "/")[0]
+	*ports = fmt.Sprintf("%s:%s", portNumber, portNumber)
 	return nil
 }
