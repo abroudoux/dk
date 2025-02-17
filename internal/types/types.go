@@ -13,3 +13,7 @@ type Container = types.Container
 
 type Client = *client.Client
 type Context = context.Context
+type App struct {
+	client Client
+	ctx    Context
+}

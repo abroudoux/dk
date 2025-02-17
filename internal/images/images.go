@@ -2,6 +2,7 @@ package images
 
 import (
 	t "github.com/abroudoux/dk/internal/types"
+	"github.com/charmbracelet/log"
 )
 
 func ImageMode(ctx t.Context, cli t.Client) error {
@@ -13,6 +14,11 @@ func ImageMode(ctx t.Context, cli t.Client) error {
 	imageSelected, err := selectImage(images)
 	if err != nil {
 		return err
+	}
+
+	if imageSelected.ID == "" {
+		log.Warn("Program exited without selecting an image..")
+		return nil
 	}
 
 	action, err := selectAction(imageSelected)

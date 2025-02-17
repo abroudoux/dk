@@ -92,6 +92,7 @@ Create a branch with a [conventionnal name](https://tilburgsciencehub.com/buildi
 - [ ] `-it` mode
 - [ ] Volumes management
 - [ ] Networks management
+- [ ] Option to add multiple exposed ports
 - [ ] Compose mode
 - [ ] History of commands
 - [x] Create images from source

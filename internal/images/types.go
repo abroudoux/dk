@@ -8,6 +8,15 @@ import (
 
 type image = dkTypes.Image
 
+type commandRun struct {
+	containerName   string
+	ports           string
+	env             bool
+	envs            []string
+	removeContainer bool
+	network         string
+}
+
 type imageAction int
 
 type actionChoice struct {

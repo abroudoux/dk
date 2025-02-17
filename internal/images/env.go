@@ -15,6 +15,11 @@ func getEnv() string {
 	huh.NewInput().Title("Key").Prompt("? ").Value(&key).Run()
 	huh.NewInput().Title("Value").Prompt("? ").Value(&value).Run()
 
+	if key == "" || value == "" {
+		logs.WarnMsg("Key or value can't be empty")
+		return getEnv()
+	}
+
 	return key + "=" + value
 }
 
