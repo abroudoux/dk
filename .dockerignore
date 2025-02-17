@@ -6,5 +6,5 @@ README.md
 /vendor
 .goreleaser.yaml
 /.github
-ressources
+ressources/monkey-loves-whale.png
 Taskfile.yaml
