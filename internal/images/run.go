@@ -89,60 +89,20 @@ func runImage(image image, ctx t.Context, cli t.Client) error {
 		hostConfig.NetworkMode = containers.ContainerNetworkMode(cmd.network)
 	}
 
-	resp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, cmd.containerName)
+	containerId, err := containers.CreateContainer(ctx, cli, config, hostConfig, cmd.containerName)
 	if err != nil {
 		return fmt.Errorf("Failed to create container %s: %v", ui.RenderElementSelected(cmd.containerName), err)
 	}
 
-	if err := cli.ContainerStart(ctx, resp.ID, containers.ContainerStartOptions{}); err != nil {
+	var containerStartOptions = containers.ContainerStartOptions{}
+	err = containers.StartContainer(ctx, cli, containerId, containerStartOptions)
+	if err != nil {
 		return fmt.Errorf("Failed to start container %s: %v", ui.RenderElementSelected(cmd.containerName), err)
 	}
 
-	log.Info(fmt.Sprintf("Container %s based on %s started", ui.RenderElementSelected(cmd.containerName), utils.RenderImageName(image)))
+	log.Info(fmt.Sprintf("Container %s based on %s created & started", ui.RenderElementSelected(cmd.containerName), utils.RenderImageName(image)))
+
 	return nil
-}
-
-func getEnv() string {
-	var key string
-	var value string
-	huh.NewInput().Title("Key").Prompt("? ").Value(&key).Run()
-	huh.NewInput().Title("Value").Prompt("? ").Value(&value).Run()
-
-	if key == "" || value == "" {
-		logs.WarnMsg("Key or value can't be empty")
-		return getEnv()
-	}
-
-	return key + "=" + value
-}
-
-func isEnvAlreadySaved(newEnv string, envs *[]string) bool {
-	for _, env := range *envs {
-		if env == newEnv {
-			return true
-		}
-	}
-	return false
-}
-
-func getEnvs(envs *[]string) {
-	newEnv := getEnv()
-	envAlreadySaved := isEnvAlreadySaved(newEnv, envs)
-	if envAlreadySaved {
-		logs.WarnMsg("Environment variable already saved")
-		getEnvs(envs)
-		return
-	}
-
-	*envs = append(*envs, newEnv)
-	log.Info(fmt.Sprintf("Environment variable saved: %s", newEnv))
-
-	addNewEnv := utils.GetConfirmation("Do you want to add another environment variable?")
-	if addNewEnv {
-		getEnvs(envs)
-		return
-	}
-	return
 }
 
 func getHostPort(image image, ports *string, ctx t.Context, cli t.Client) error {
